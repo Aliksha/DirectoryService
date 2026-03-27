@@ -1,1 +1,14 @@
-<Solution />
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path="Directory.Build.props" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/DirectoryService.Application/DirectoryService.Application.csproj" />
+    <Project Path="src/DirectoryService.Contracts/DirectoryService.Contracts.csproj" />
+    <Project Path="src/DirectoryService.Domain/DirectoryService.Domain.csproj" />
+    <Project Path="src/DirectoryService.Infrastructure/DirectoryService.Infrastructure.csproj" />
+    <Project Path="src/DirectoryService.Presenters/DirectoryService.Presenters.csproj" />
+    <Project Path="src/DirectoryService.Web/DirectoryService.Web.csproj" />
+  </Folder>
+</Solution>

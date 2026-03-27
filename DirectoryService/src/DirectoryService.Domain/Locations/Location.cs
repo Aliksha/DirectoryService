@@ -1,0 +1,50 @@
+﻿using CSharpFunctionalExtensions;
+using DirectoryService.Domain.DepartmentLocations;
+using System;
+using System.Collections.Generic;
+using System.Net;
+using System.Text;
+
+namespace DirectoryService.Domain.Locations
+{
+    public class Location
+    {
+        private Location() { }
+
+        private List<DepartmentLocation> _departments = [];
+        private Location(LocationId id, LocationName name, Address address, Timezone timezone, IEnumerable<DepartmentLocation> departments)
+        {
+            Id = id;
+            Name = name;
+            Address = address;
+            Timezone = timezone;
+            IsActive = true;
+            _departments = departments.ToList();
+            CreatedAt = DateTime.UtcNow;
+            UpdatedAt = DateTime.UtcNow;
+        }
+
+        public LocationId Id { get; private set; }
+        public LocationName Name { get; private set; }
+        public Address Address { get; private set; }
+        public Timezone Timezone { get; private set; }
+        public bool IsActive { get; private set; }
+        public IReadOnlyList<DepartmentLocation> Departments => _departments;
+        public DateTime CreatedAt { get; private set; }
+        public DateTime UpdatedAt { get; private set; }
+
+        public static Result<Location> Create(LocationName name, Address address, Timezone timezone, IEnumerable<DepartmentLocation> departments)
+        {
+            if (name is null)
+                return Result.Failure<Location>("Name is required.");
+            if (address is null)
+                return Result.Failure<Location>("Address is required.");
+            if (timezone is null)
+                return Result.Failure<Location>("Timezone is required.");
+
+            var id = LocationId.Create();
+            return Result.Success(new Location(id, name, address, timezone, departments));
+        }
+
+    }
+}
