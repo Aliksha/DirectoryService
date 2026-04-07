@@ -1,9 +1,20 @@
+﻿using DirectoryService.Infrastructure;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
+builder.Services.AddInfrastructure(builder.Configuration);
+
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
+
+//builder.Services.AddScoped<DirectoryServiceDbContext>(_ =>
+//    new DirectoryServiceDbContext(builder.Configuration.GetConnectionString(c)!));
+//builder.Services.AddDbContext<DirectoryServiceDbContext>(options =>
+//    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
 
 var app = builder.Build();
 

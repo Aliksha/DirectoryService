@@ -2,6 +2,7 @@
   <Folder Name="/Solution Items/">
     <File Path=".editorconfig" />
     <File Path="Directory.Build.props" />
+    <File Path="docker-compose.yml" />
   </Folder>
   <Folder Name="/src/">
     <Project Path="src/DirectoryService.Application/DirectoryService.Application.csproj" />
