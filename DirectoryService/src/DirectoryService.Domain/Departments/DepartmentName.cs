@@ -10,11 +10,11 @@ namespace DirectoryService.Domain.Departments
         public const int MIN_LENGTH = 3;
         public const int MAX_LENGTH = 150;
 
-        public DepartmentName(string value)
+        private DepartmentName(string value)
         {
             Value = value;
         }
-        private string Value { get; }
+        public string Value { get; }
 
         public static Result<DepartmentName> Create(string value)
         {
