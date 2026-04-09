@@ -1,4 +1,7 @@
 <Solution>
+  <Folder Name="/shared/">
+    <Project Path="Core/Core.csproj" Id="8039a737-cf4a-4e66-8065-f6f2f4827d8c" />
+  </Folder>
   <Folder Name="/Solution Items/">
     <File Path=".editorconfig" />
     <File Path="Directory.Build.props" />
