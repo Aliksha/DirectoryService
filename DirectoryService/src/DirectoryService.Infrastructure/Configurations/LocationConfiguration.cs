@@ -41,7 +41,7 @@ namespace DirectoryService.Infrastructure.Configurations
                        .HasJsonPropertyName("house_number");
                     nb.Property(x => x.Street)
                         .IsRequired()
-                        .HasJsonPropertyName("stree");
+                        .HasJsonPropertyName("street");
                     nb.Property(x => x.City)
                         .IsRequired()
                         .HasJsonPropertyName("city");

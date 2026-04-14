@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using DirectoryService.Application.IRepositories;
+using DirectoryService.Infrastructure.Repositories;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -13,6 +15,8 @@ namespace DirectoryService.Infrastructure
         {
             services.AddDbContext<DirectoryServiceDbContext>(options =>
                 options.UseNpgsql(configuration.GetConnectionString("DirectoryServiceDb")));
+
+            services.AddScoped<ILocationsRepository, LocationsRepository>();
 
             return services;
         }
