@@ -9,7 +9,5 @@ namespace DirectoryService.Application.IRepositories
     public interface ILocationsRepository
     {
         Task<Result<Guid>> AddLocationAsync(Location location, CancellationToken cancellationToken = default);
-
-
     }
 }
