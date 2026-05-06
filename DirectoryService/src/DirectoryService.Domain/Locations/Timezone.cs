@@ -11,6 +11,7 @@ namespace DirectoryService.Domain.Locations
         {
             Value = value;
         }
+
         public string Value { get; }
 
         public static Result<Timezone> Create(string value)

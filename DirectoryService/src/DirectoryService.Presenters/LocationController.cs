@@ -1,20 +1,18 @@
 ﻿using Core.Abstractions;
-using CSharpFunctionalExtensions;
 using DirectoryService.Application.Locations;
 using DirectoryService.Contracts.Locations;
+using Framework.EndpointResults;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace DirectoryService.Presenters
 {
     [ApiController]
     [Route("/api/locations")]
-    public class LocationController
+    public class LocationController : ControllerBase
     {
         [HttpPost]
-        public async Task<Result<Guid>> Post(
+        public async Task<EndpointResult<Guid>> Post(
             [FromBody] LocationCreateDto dto,
             [FromServices] ICommandHandler<Guid, LocationCreateCommand> handler,
             CancellationToken cancellationToken)

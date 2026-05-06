@@ -1,6 +1,8 @@
 <Solution>
   <Folder Name="/shared/">
     <Project Path="Core/Core.csproj" Id="8039a737-cf4a-4e66-8065-f6f2f4827d8c" />
+    <Project Path="shared/Framework/Framework.csproj" Id="b6d6a3e4-39de-4f69-8fd8-e52a54af2eba" />
+    <Project Path="shared/SharedKernel/SharedKernel.csproj" Id="955b51fc-104f-405e-9978-5c8978acb92b" />
   </Folder>
   <Folder Name="/Solution Items/">
     <File Path=".editorconfig" />

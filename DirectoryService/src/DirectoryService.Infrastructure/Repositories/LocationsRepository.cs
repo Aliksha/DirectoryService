@@ -2,6 +2,7 @@
 using DirectoryService.Application.IRepositories;
 using DirectoryService.Domain.Locations;
 using Microsoft.Extensions.Logging;
+using SharedKernel;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -19,7 +20,7 @@ namespace DirectoryService.Infrastructure.Repositories
             _logger = logger;
         }
 
-        public async Task<Result<Guid>> AddLocationAsync(Location location, CancellationToken cancellationToken = default)
+        public async Task<Result<Guid, Error>> AddLocationAsync(Location location, CancellationToken cancellationToken = default)
         {
             try
             {
@@ -34,7 +35,7 @@ namespace DirectoryService.Infrastructure.Repositories
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Failure adding location {Location.Id}", location.Id);
-                return Result.Failure<Guid>("Failure adding location ");
+                return GeneralErrors.DataBase();
             }
         }
     }
