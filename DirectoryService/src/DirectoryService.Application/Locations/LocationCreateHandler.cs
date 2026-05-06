@@ -5,6 +5,7 @@ using DirectoryService.Contracts.Locations;
 using DirectoryService.Domain.Locations;
 using FluentValidation;
 using Microsoft.Extensions.Logging;
+using SharedKernel;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -14,12 +15,12 @@ namespace DirectoryService.Application.Locations
     public class LocationCreateHandler : ICommandHandler<Guid, LocationCreateCommand>
     {
         private readonly ILocationsRepository _locationsRepository;
-        private readonly IValidator<LocationCreateDto> _validator;
+        private readonly IValidator<LocationCreateCommand> _validator;
         private readonly ILogger<LocationCreateHandler> _logger;
 
         public LocationCreateHandler(
             ILocationsRepository locationsRepository,
-            IValidator<LocationCreateDto> validator,
+            IValidator<LocationCreateCommand> validator,
             ILogger<LocationCreateHandler> logger)
         {
             _locationsRepository = locationsRepository;
@@ -27,31 +28,35 @@ namespace DirectoryService.Application.Locations
             _logger = logger;
         }
 
-        public async Task<Result<Guid>> Handle(LocationCreateCommand command, CancellationToken cancellationToken = default)
+        public async Task<Result<Guid, Errors>> Handle(LocationCreateCommand command, CancellationToken cancellationToken = default)
         {
-            var validationResult = await _validator.ValidateAsync(command.Dto, cancellationToken);
+            var validationResult = await _validator.ValidateAsync(command, cancellationToken);
             if (!validationResult.IsValid)
-                return Result.Failure<Guid>("validation error");
+                return GeneralErrors.ValueIsInvalid("location").ToErrors();
 
-            var name = LocationName.Create(command.Dto.Name).Value;
-            var locAddress = command.Dto.Address;
-            var address = Address.Create(locAddress.HouseNumber, locAddress.Street, locAddress.City, locAddress.Country).Value;
-            var timezone = Timezone.Create(command.Dto.Timezone).Value;
+            var name = LocationName.Create(command.Dto.Name);
+            var locationAddress = command.Dto.Address;
+            var address = Address.Create(locationAddress.HouseNumber, locationAddress.Street, locationAddress.City, locationAddress.Country);
+            var timezone = Timezone.Create(command.Dto.Timezone);
 
-            var location = Location.Create(name, address, timezone);
+            var locationResult = Result.Combine(name, address, timezone);
+
+            if (locationResult.IsFailure)
+                return Error.Failure("validation", locationResult.Error).ToErrors();
+
+            var location = Location.Create(name.Value, address.Value, timezone.Value);
 
             var repositoryResult = await _locationsRepository.AddLocationAsync(location.Value);
 
             if (!repositoryResult.IsSuccess)
             {
                 _logger.LogInformation("failed to add location");
-                return Result.Failure<Guid>("db saving problem");
+                return Error.Failure(null, "db problem").ToErrors();
             }
-            
+
             _logger.LogInformation("location with id {location.Id} has been added", location.Value.Id);
 
-            return Result.Success(location.Value.Id.Value);
-           // return location.Value.Id.Value;
+            return location.Value.Id.Value;
         }
     }
 }

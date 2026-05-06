@@ -8,6 +8,11 @@
 
   <ItemGroup>
     <PackageReference Include="CSharpFunctionalExtensions" Version="3.7.0" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.6" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\shared\SharedKernel\SharedKernel.csproj" />
   </ItemGroup>
 
 </Project>

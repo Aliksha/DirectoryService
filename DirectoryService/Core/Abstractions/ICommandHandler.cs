@@ -1,4 +1,5 @@
 ﻿using CSharpFunctionalExtensions;
+using SharedKernel;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -10,6 +11,6 @@ namespace Core.Abstractions
     public interface ICommandHandler<TResponse, in TCommand>
         where TCommand : ICommand
     {
-        Task<Result<TResponse>> Handle(TCommand command, CancellationToken cancellationToken = default);
+        Task<Result<TResponse, Errors>> Handle(TCommand command, CancellationToken cancellationToken = default);
     }
 }

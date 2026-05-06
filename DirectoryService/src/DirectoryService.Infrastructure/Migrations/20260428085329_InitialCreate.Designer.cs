@@ -13,15 +13,15 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DirectoryService.Infrastructure.Migrations
 {
     [DbContext(typeof(DirectoryServiceDbContext))]
-    [Migration("20260405113550_Initial")]
-    partial class Initial
+    [Migration("20260428085329_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.5")
+                .HasAnnotation("ProductVersion", "10.0.6")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.HasPostgresExtension(modelBuilder, "ltree");
@@ -323,7 +323,7 @@ namespace DirectoryService.Infrastructure.Migrations
 
                             b1.Property<string>("Street")
                                 .IsRequired()
-                                .HasJsonPropertyName("stree");
+                                .HasJsonPropertyName("street");
 
                             b1.HasKey("LocationId");
 
