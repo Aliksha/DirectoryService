@@ -1,0 +1,24 @@
+﻿version: '3.8'
+
+services:
+  seq:
+    image: datalust/seq:latest
+    container_name: seq_server
+    restart: always
+    environment:
+      - ACCEPT_EULA=Y
+      # Опционально: дефолтный пароль администратора (минимум 16 символов)
+      # - SEQ_FIRSTRUN_ADMINPASSWORD=YourSecurePassword123!
+      - SEQ_FIRSTRUN_NOAUTHENTICATION=true 
+    ports:
+      - "5341:80"   # Веб-интерфейс UI и API для приема логов
+    # volumes:
+    #   - seq_data:/data
+    # deploy:
+    #   resources:
+    #     limits:
+    #       memory: 1g # Ограничение памяти для предотвращения OOM (минимальное рекомендуемое)
+
+# volumes:
+#   seq_data:
+#     driver: local
