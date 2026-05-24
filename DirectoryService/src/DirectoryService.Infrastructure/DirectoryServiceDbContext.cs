@@ -1,4 +1,5 @@
-﻿using DirectoryService.Domain.DepartmentLocations;
+﻿using DirectoryService.Application.Db;
+using DirectoryService.Domain.DepartmentLocations;
 using DirectoryService.Domain.DepartmentPositions;
 using DirectoryService.Domain.Departments;
 using DirectoryService.Domain.Locations;
@@ -11,7 +12,7 @@ using System.Text;
 
 namespace DirectoryService.Infrastructure
 {
-    public class DirectoryServiceDbContext : DbContext
+    public class DirectoryServiceDbContext : DbContext, IReadDbContext
     {
         private readonly string _connectionString;
 
@@ -32,7 +33,7 @@ namespace DirectoryService.Infrastructure
             //    .UseLoggerFactory(MyLoggerFactory)
             //    .UseNpgsql(_connectionString);
 
-            optionsBuilder.UseLoggerFactory(MyLoggerFactory); 
+            optionsBuilder.UseLoggerFactory(MyLoggerFactory);
 
             // настроить БД только если еще не настроена извне
             if (!optionsBuilder.IsConfigured && _connectionString != null)
@@ -55,6 +56,7 @@ namespace DirectoryService.Infrastructure
         public DbSet<DepartmentLocation> DepartmentLocations => Set<DepartmentLocation>();
         public DbSet<DepartmentPosition> DepartmentPositions => Set<DepartmentPosition>();
 
+        public IQueryable<Location> LocationsRead => Set<Location>().AsNoTracking();
 
         public static readonly ILoggerFactory MyLoggerFactory
             = LoggerFactory.Create(builder => { builder.AddConsole(); });

@@ -38,15 +38,15 @@ namespace DirectoryService.Domain.Locations
 
         public static Result<Location> Create(LocationName name, Address address, Timezone timezone/*, IEnumerable<DepartmentLocation> departments*/)
         {
-            if (name is null)
-                return Result.Failure<Location>("Name is required.");
-            if (address is null)
-                return Result.Failure<Location>("Address is required.");
-            if (timezone is null)
-                return Result.Failure<Location>("Timezone is required.");
+            //if (name is null)
+            //    return Result.Failure<Location>("Name is required.");
+            //if (address is null)
+            //    return Result.Failure<Location>("Address is required.");
+            //if (timezone is null)
+            //    return Result.Failure<Location>("Timezone is required.");
 
             var id = LocationId.Create();
-            return Result.Success(new Location(id, name, address, timezone/*, departments*/));
+            return new Location(id, name, address, timezone/*, departments*/);
         }
 
     }

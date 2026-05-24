@@ -1,10 +1,10 @@
-﻿using DirectoryService.Application;
+﻿using System.Globalization;
+using DirectoryService.Application;
 using DirectoryService.Infrastructure;
 using DirectoryService.Web.Middlewares;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Serilog.Exceptions;
-using System.Globalization;
 
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Information()
