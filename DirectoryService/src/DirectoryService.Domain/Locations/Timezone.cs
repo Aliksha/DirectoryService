@@ -1,4 +1,5 @@
 ﻿using CSharpFunctionalExtensions;
+using SharedKernel;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -14,10 +15,10 @@ namespace DirectoryService.Domain.Locations
 
         public string Value { get; }
 
-        public static Result<Timezone> Create(string value)
+        public static Result<Timezone, Error> Create(string value)
         {
             if (string.IsNullOrWhiteSpace(value))
-                return Result.Failure<Timezone>("Timezone cannot be empty.");
+                return GeneralErrors.ValueIsRequired("timezone.empty");
 
             try
             {
@@ -25,10 +26,10 @@ namespace DirectoryService.Domain.Locations
             }
             catch (TimeZoneNotFoundException)
             {
-                return Result.Failure<Timezone>($"'{value}' is not a valid system timezone ID.");
+                return GeneralErrors.ValueIsInvalid("timezone.not.found");
             }
 
-            return Result.Success(new Timezone(value));
+            return new Timezone(value);
         }
     }
 }

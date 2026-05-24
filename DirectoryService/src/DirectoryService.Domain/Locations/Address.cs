@@ -1,4 +1,5 @@
 ﻿using CSharpFunctionalExtensions;
+using SharedKernel;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -20,16 +21,39 @@ namespace DirectoryService.Domain.Locations
         public string City { get; }
         public string Country { get; }
 
-        public static Result<Address> Create(string houseNumber, string street, string city, string country)
+        public static Result<Address, Errors> Create(string houseNumber, string street, string city, string country)
         {
+            // для накопления всех упавших проверок
+            var errors = new List<Error>();
+
+            //if (string.IsNullOrWhiteSpace(houseNumber))
+            //    return GeneralErrors.ValueIsInvalid("house_number-is-null");
+            //if (string.IsNullOrWhiteSpace(street))
+            //    return GeneralErrors.ValueIsInvalid("street-is-null");
+            //if (string.IsNullOrWhiteSpace(city))
+            //    return GeneralErrors.ValueIsInvalid("city-is-null");
+            //if (string.IsNullOrWhiteSpace(country))
+            //    return GeneralErrors.ValueIsInvalid("country-is-null");
+
             if (string.IsNullOrWhiteSpace(houseNumber))
-                return Result.Failure<Address>("House Number cannot be empty.");
+                errors.Add(GeneralErrors.ValueIsInvalid("house_number.empty"));
+
             if (string.IsNullOrWhiteSpace(street))
-                return Result.Failure<Address>("House Number cannot be empty.");
+                errors.Add(GeneralErrors.ValueIsInvalid("street.empty"));
+
             if (string.IsNullOrWhiteSpace(city))
-                return Result.Failure<Address>("House Number cannot be empty.");
+                errors.Add(GeneralErrors.ValueIsInvalid("city.empty"));
+
             if (string.IsNullOrWhiteSpace(country))
-                return Result.Failure<Address>("House Number cannot be empty.");
+                errors.Add(GeneralErrors.ValueIsInvalid("country.empty"));
+
+            if (errors.Count > 0)
+            {
+                //return new Errors(errors);
+
+                // implicit operator - из List<Error> в Errors
+                return Result.Failure<Address, Errors>(errors);
+            }
 
             return new Address(houseNumber, street, city, country);
         }

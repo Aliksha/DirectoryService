@@ -1,5 +1,7 @@
 ﻿using Core.Abstractions;
-using DirectoryService.Application.Locations;
+using CSharpFunctionalExtensions;
+using DirectoryService.Application.Locations.Create;
+using DirectoryService.Application.Locations.Get;
 using DirectoryService.Contracts.Locations;
 using Framework.EndpointResults;
 using Microsoft.AspNetCore.Http;
@@ -20,6 +22,17 @@ namespace DirectoryService.Presenters
             var command = new LocationCreateCommand(dto);
 
             return await handler.Handle(command, cancellationToken);
+        }
+
+        [HttpGet]
+        public async Task<EndpointResult<LocationResponseDto>> Get(
+            [FromQuery] LocationGetDto dto, // данные фильтрации, пагинации и сортировки из Query String
+            [FromServices] IQueryHandler<LocationResponseDto, LocationsGetQuery> handler,
+            CancellationToken cancellationToken)
+        {
+            var query = new LocationsGetQuery(dto);
+
+            return await handler.Handle(query, cancellationToken);
         }
     }
 }

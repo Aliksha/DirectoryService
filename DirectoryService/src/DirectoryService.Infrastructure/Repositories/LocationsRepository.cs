@@ -1,6 +1,7 @@
 ﻿using CSharpFunctionalExtensions;
 using DirectoryService.Application.IRepositories;
 using DirectoryService.Domain.Locations;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using SharedKernel;
 using System;
@@ -38,5 +39,36 @@ namespace DirectoryService.Infrastructure.Repositories
                 return GeneralErrors.DataBase();
             }
         }
+
+        public async Task<Result<IReadOnlyCollection<Location>, Errors>> GetLocationsAsync(List<LocationId> ids, CancellationToken cancellationToken = default)
+        {
+            // защита от лишнего запроса к БД
+            if (ids == null || ids.Count == 0)
+            {
+                IReadOnlyCollection<Location> emptyList = Array.Empty<Location>();
+                return Result.Success<IReadOnlyCollection<Location>, Errors>(emptyList);
+            }
+
+            try
+            {
+                var rawIds = ids.Select(id => id.Value).ToList();
+
+                var locations = await _context.LocationsRead
+                    .Where(l => rawIds.Contains(l.Id.Value))
+                    .ToListAsync(cancellationToken);
+
+                IReadOnlyCollection<Location> resultCollection = locations.AsReadOnly();
+
+                return Result.Success<IReadOnlyCollection<Location>, Errors>(resultCollection);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while fetching locations by IDs");
+
+                return Error.Failure("database.error", "Failed to fetch locations from the database").ToErrors();
+            }
+        }
+
+        public async Task<bool> IsNameUniqueAsync(string name, CancellationToken cancellationToken) => !await _context.LocationsRead.AnyAsync(x => x.Name.Value == name, cancellationToken);
     }
 }

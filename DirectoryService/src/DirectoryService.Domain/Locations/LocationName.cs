@@ -1,29 +1,35 @@
 ﻿using CSharpFunctionalExtensions;
+using SharedKernel;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace DirectoryService.Domain.Locations
 {
     public sealed record LocationName
     {
         public const int MIN_LENGTH = 3;
-        public const int MAX_LENGTH = 120;
+        public const int MAX_LENGTH = 50;
 
         private LocationName(string value)
         {
             Value = value;
         }
+
         public string Value { get; }
 
-        public static Result<LocationName> Create(string name)
+        public static Result<LocationName, Error> Create(string value)
         {
-            if (string.IsNullOrWhiteSpace(name))
-                return Result.Failure<LocationName>("Name cannot be empty.");
-            if (name.Length < MIN_LENGTH || name.Length > MAX_LENGTH)
-                return Result.Failure<LocationName>("Name is tooo short ot too long");
+            if (string.IsNullOrWhiteSpace(value))
+                return GeneralErrors.ValueIsRequired("location.name.empty");
 
-            return Result.Success(new LocationName(name));
+            string normalized = Regex.Replace(value.Trim(), @"\s+", " ");
+
+            if (normalized.Length < MIN_LENGTH || normalized.Length > MAX_LENGTH)
+                return GeneralErrors.ValueIsInvalid("location.name.wrong.lenght");
+
+            return new LocationName(normalized);
         }
     }
 }
