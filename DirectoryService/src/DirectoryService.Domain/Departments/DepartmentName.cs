@@ -1,7 +1,9 @@
 ﻿using CSharpFunctionalExtensions;
+using SharedKernel;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace DirectoryService.Domain.Departments
 {
@@ -16,14 +18,17 @@ namespace DirectoryService.Domain.Departments
         }
         public string Value { get; }
 
-        public static Result<DepartmentName> Create(string value)
+        public static Result<DepartmentName, Error> Create(string value)
         {
             if (string.IsNullOrWhiteSpace(value))
-                return Result.Failure<DepartmentName>("Department name cannot be enpty");
-            if (value.Length < MIN_LENGTH || value.Length > MAX_LENGTH)
-                return Result.Failure<DepartmentName>("Department name is too short or too long");
+                return GeneralErrors.ValueIsRequired("departmnet.name.empty");
 
-            return Result.Success(new DepartmentName(value));
+            string normalized = Regex.Replace(value.Trim(), @"\s+", " ");
+
+            if (normalized.Length < MIN_LENGTH || normalized.Length > MAX_LENGTH)
+                return GeneralErrors.ValueIsInvalid("department.name.wrong.lenght");
+
+            return new DepartmentName(normalized);
         }
     }
 }

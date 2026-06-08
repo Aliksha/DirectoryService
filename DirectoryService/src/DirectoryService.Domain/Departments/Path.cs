@@ -6,11 +6,12 @@ namespace DirectoryService.Domain.Departments
 {
     public sealed record Path
     {
-        private const char Separator = '/';
+        private const char SEPARATOR = '.';
         private Path(string value)
         {
             Value = value;
         }
+
         public string Value { get; }
 
         public static Path CreateParent(Identifier identifier)
@@ -18,9 +19,9 @@ namespace DirectoryService.Domain.Departments
             return new Path(identifier.Value);
         }
 
-        public static Path CreateChild(Department parent, Identifier identifier)
+        public static Path CreateChild(Path parentPath, Identifier identifier)
         {
-            return new Path(parent.Path.Value + Separator + identifier.Value);
+            return new Path(parentPath.Value + SEPARATOR + identifier.Value);
         }
     }
 }

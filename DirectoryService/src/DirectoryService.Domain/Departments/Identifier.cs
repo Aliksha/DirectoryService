@@ -1,4 +1,5 @@
 ﻿using CSharpFunctionalExtensions;
+using SharedKernel;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -19,18 +20,20 @@ namespace DirectoryService.Domain.Departments
         }
         public string Value { get; }
 
-        public static Result<Identifier> Create(string value)
+        public static Result<Identifier, Error> Create(string value)
         {
             if (string.IsNullOrWhiteSpace(value))
-                return Result.Failure<Identifier>("Identifier cannot be empty");
+                return GeneralErrors.ValueIsRequired("identifier.empty");
+
             if (value.Length < MIN_LENGTH || value.Length > MAX_LENGTH)
-                return Result.Failure<Identifier>("Identifier is too short or too long");
+                return GeneralErrors.ValueIsInvalid("identifier.wrong.lenght");
 
             var trimedValue = value.Trim().ToLowerInvariant();
-            if (!ValidFormat.IsMatch(trimedValue))
-                return Result.Failure<Identifier>("Identifier");
 
-            return Result.Success(new Identifier(trimedValue));
+            if (!ValidFormat.IsMatch(trimedValue))
+                return GeneralErrors.ValueIsInvalid("identifier.is.invalid");
+
+            return new Identifier(trimedValue);
         }
     }
 }

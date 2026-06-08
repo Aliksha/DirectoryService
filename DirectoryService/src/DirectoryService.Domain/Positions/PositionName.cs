@@ -1,7 +1,9 @@
 ﻿using CSharpFunctionalExtensions;
+using SharedKernel;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace DirectoryService.Domain.Positions
 {
@@ -16,19 +18,17 @@ namespace DirectoryService.Domain.Positions
         }
         public string Value { get; }
 
-        public static Result<PositionName> Create(string name)
+        public static Result<PositionName, Error> Create(string value)
         {
-            if (string.IsNullOrWhiteSpace(name))
-            {
-                return Result.Failure<PositionName>("Name cannot be empty.");
-            }
+            if (string.IsNullOrWhiteSpace(value))
+                return GeneralErrors.ValueIsRequired("position.name.empty");
 
-            if (name.Length < MIN_LENGTH || name.Length > MAX_LENGTH)
-            {
-                return Result.Failure<PositionName>($"Name must be between {MIN_LENGTH} and {MAX_LENGTH} characters.");
-            }
+            string normalized = Regex.Replace(value.Trim(), @"\s+", " ");
 
-            return Result.Success(new PositionName(name));
+            if (normalized.Length < MIN_LENGTH || normalized.Length > MAX_LENGTH)
+                return GeneralErrors.ValueIsInvalid("position.name.wrong.lenght");
+
+            return new PositionName(normalized);
         }
 
     }

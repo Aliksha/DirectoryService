@@ -1,26 +1,26 @@
 ﻿using Core.Abstractions;
-using DirectoryService.Application.Departments.Create;
-using DirectoryService.Contracts.Departments;
+using DirectoryService.Application.Positions.Create;
+using DirectoryService.Contracts.Positions;
 using Framework.EndpointResults;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using System.Text;
+using System.Windows.Input;
 
 namespace DirectoryService.Presenters
 {
     [ApiController]
-    [Route("/api/departments")]
-    public class DepartmentController : ControllerBase
+    [Route("/api/positions")]
+    public class PositionController : ControllerBase
     {
         [HttpPost]
         public async Task<EndpointResult<Guid>> Post(
-            [FromBody] DepartmentCreateDto dto,
-            [FromServices] ICommandHandler<Guid, CreateDepartmentCommand> handler,
+            [FromBody] CreatePositionDto dto,
+            [FromServices] ICommandHandler<Guid, CreatePositionCommand> handler,
             CancellationToken cancellationToken)
         {
-            var command = new CreateDepartmentCommand(dto);
+            var command = new CreatePositionCommand(dto);
             return await handler.Handle(command, cancellationToken);
         }
     }

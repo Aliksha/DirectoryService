@@ -14,5 +14,7 @@ namespace DirectoryService.Application.IRepositories
         Task<Result<IReadOnlyCollection<Location>, Errors>> GetLocationsAsync(List<LocationId> ids, CancellationToken cancellationToken = default);
 
         Task<bool> IsNameUniqueAsync(string name, CancellationToken cancellationToken);
+
+        Task<UnitResult<Errors>> CheckExisting(Guid[] ids, CancellationToken cancellationToken = default);
     }
 }

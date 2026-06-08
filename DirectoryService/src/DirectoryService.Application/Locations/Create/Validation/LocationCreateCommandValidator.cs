@@ -1,4 +1,4 @@
-﻿using DirectoryService.Application.IRepositories;
+﻿using Core.Validation;
 using DirectoryService.Contracts.Locations;
 using DirectoryService.Domain.Locations;
 using FluentValidation;
@@ -14,7 +14,6 @@ namespace DirectoryService.Application.Locations.Create.Validation
         {
             RuleFor(x => x.Name)
                 .MustBeValueObject(LocationName.Create);
-
 
             RuleFor(x => x.Address)
                 .MustBeValueObject<LocationCreateDto, AddressDto, Address>(x =>

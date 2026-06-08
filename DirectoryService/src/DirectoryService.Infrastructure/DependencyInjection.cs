@@ -1,6 +1,8 @@
-﻿using DirectoryService.Application.Db;
+﻿using Dapper;
+using DirectoryService.Application.Db;
 using DirectoryService.Application.IRepositories;
 using DirectoryService.Infrastructure.Repositories;
+using DirectoryService.Infrastructure.Repositories.DapperRepositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,11 +16,32 @@ namespace DirectoryService.Infrastructure
     {
         public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddDbContext<DirectoryServiceDbContext>(options =>
-                options.UseNpgsql(configuration.GetConnectionString("DirectoryServiceDb")));
+            // EF Core
+            var connectionString = configuration.GetConnectionString("DirectoryServiceDb");
 
-            services.AddScoped<ILocationsRepository, LocationsRepository>();
-            services.AddScoped<IReadDbContext, DirectoryServiceDbContext>();
+            services.AddDbContext<DirectoryServiceDbContext>(options =>
+                options.UseNpgsql(connectionString));
+
+            services.AddScoped<IReadDbContext>(sp => sp.GetRequiredService<DirectoryServiceDbContext>());
+            services.AddScoped<IDepartmentsRepository, DepartmentsRepository>();
+            services.AddScoped<IPositionsRepository, PositionsRepository>();
+
+            // фабрика для Dapper
+            services.AddSingleton<IDbConnectionFactory>(_ => new SqlConnectionFactory(connectionString));
+
+            // ВЫБОР РЕАЛИЗАЦИИ РЕПОЗИТОРИЯ ЛОКАЦИЙ
+            bool useDapper = true;
+
+            if (useDapper)
+            {
+                // Dapper
+                services.AddScoped<ILocationsRepository, DapperLocationsRepository>();
+            }
+            else
+            {
+                // EF Core
+                services.AddScoped<ILocationsRepository, LocationsRepository>();
+            }
 
             return services;
         }
