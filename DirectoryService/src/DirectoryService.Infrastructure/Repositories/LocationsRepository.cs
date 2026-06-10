@@ -40,6 +40,36 @@ namespace DirectoryService.Infrastructure.Repositories
             }
         }
 
+        public async Task<UnitResult<Errors>> CheckExisting(Guid[] ids, CancellationToken cancellationToken = default)
+        {
+            if (ids == null || ids.Length == 0)
+            {
+                var emptyError = GeneralErrors.ValueIsRequired("locations.ids.empty");
+                return UnitResult.Failure(emptyError.ToErrors());
+            }
+
+            var distinctIds = ids.Distinct().ToArray(); // убираем дубликаты
+            var domainLocationIds = distinctIds.Select(LocationId.Current).ToList();
+
+            var existingIds = await _context.Locations
+                .Where(l => domainLocationIds.Contains(l.Id) && l.IsActive)
+                .Select(l => l.Id.Value)
+                .ToListAsync(cancellationToken);
+
+            // чего в бд нет
+            var missingIds = distinctIds.Except(existingIds).ToList();
+            var errorsList = missingIds
+                .Select(id => GeneralErrors.NotFound(id, "location"))
+                .ToList();
+
+            if (errorsList.Count > 0)
+            {
+                return UnitResult.Failure(new Errors(errorsList));
+            }
+
+            return UnitResult.Success<Errors>();
+        }
+
         public async Task<Result<IReadOnlyCollection<Location>, Errors>> GetLocationsAsync(List<LocationId> ids, CancellationToken cancellationToken = default)
         {
             // защита от лишнего запроса к БД

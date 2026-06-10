@@ -2,7 +2,7 @@
 using FluentValidation.Results;
 using SharedKernel;
 
-namespace DirectoryService.Application.Locations.Create.Validation
+namespace Core.Validation
 {
     public static class ValidationExtensions
     {

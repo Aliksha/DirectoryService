@@ -38,16 +38,28 @@ namespace DirectoryService.Domain.Locations
 
         public static Result<Location> Create(LocationName name, Address address, Timezone timezone/*, IEnumerable<DepartmentLocation> departments*/)
         {
-            //if (name is null)
-            //    return Result.Failure<Location>("Name is required.");
-            //if (address is null)
-            //    return Result.Failure<Location>("Address is required.");
-            //if (timezone is null)
-            //    return Result.Failure<Location>("Timezone is required.");
-
             var id = LocationId.Create();
             return new Location(id, name, address, timezone/*, departments*/);
         }
 
+        // исключительно для репозиториев Dapper/EF
+        //public static Location Reconstitute(
+        //    LocationId id,
+        //    LocationName name,
+        //    Address address,
+        //    Timezone timezone,
+        //    bool isActive,
+        //    DateTime createdAt,
+        //    DateTime updatedAt)
+        //{
+        //    var location = new Location(id, name, address, timezone);
+
+        //    // заполнение системных свойств
+        //    location.IsActive = isActive;
+        //    location.CreatedAt = createdAt;
+        //    location.UpdatedAt = updatedAt;
+
+        //    return location;
+        //}
     }
 }

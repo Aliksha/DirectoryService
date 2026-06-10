@@ -33,10 +33,9 @@ namespace DirectoryService.Domain.Positions
         public DateTime CreatedAt { get; private set; }
         public DateTime UpdatedAt { get; private set; }
 
-        public static Result<Position> Create(PositionName name, string description, IEnumerable<DepartmentPosition> departments)
+        public static Result<Position> Create(PositionName name, string? description, IEnumerable<DepartmentPosition> departments, PositionId? id = null)
         {
-            var id = PositionId.Create();
-            return Result.Success(new Position(id, name, description, departments));
+            return new Position(id ?? PositionId.Create(), name, description, departments);
         }
     }
 }

@@ -1,0 +1,71 @@
+﻿using Core.Abstractions;
+using Core.Validation;
+using CSharpFunctionalExtensions;
+using DirectoryService.Application.IRepositories;
+using DirectoryService.Contracts.Positions;
+using DirectoryService.Domain.DepartmentPositions;
+using DirectoryService.Domain.Departments;
+using DirectoryService.Domain.Positions;
+using FluentValidation;
+using Microsoft.Extensions.Logging;
+using SharedKernel;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace DirectoryService.Application.Positions.Create
+{
+    public class CreatePositionHandler : ICommandHandler<Guid, CreatePositionCommand>
+    {
+        private readonly IPositionsRepository _positionsRepository;
+        private readonly IDepartmentsRepository _departmentsRepository;
+        private readonly IValidator<CreatePositionDto> _validator;
+        private readonly ILogger<CreatePositionHandler> _logger;
+
+        public CreatePositionHandler(
+            IPositionsRepository positionsRepository,
+            IDepartmentsRepository departmentsRepository,
+            IValidator<CreatePositionDto> validator,
+            ILogger<CreatePositionHandler> logger)
+        {
+            _positionsRepository = positionsRepository;
+            _departmentsRepository = departmentsRepository;
+            _validator = validator;
+            _logger = logger;
+        }
+
+        public async Task<Result<Guid, Errors>> Handle(CreatePositionCommand command, CancellationToken cancellationToken = default)
+        {
+            var validarionResult = await _validator.ValidateAsync(command.Dto, cancellationToken);
+            if (!validarionResult.IsValid)
+            {
+                return validarionResult.ToErrorList();
+            }
+
+            var positionId = PositionId.Create();
+            var positionName = PositionName.Create(command.Dto.Name);
+            var positionDescription = command.Dto.Description;
+
+            var existingDepartmentsCheck = await _departmentsRepository.CheckExisting(command.Dto.Departments, cancellationToken);
+            if (existingDepartmentsCheck.IsFailure)
+                return existingDepartmentsCheck.Error;
+
+            var departmentsIds = command.Dto.Departments
+                .Select(x => DepartmentPosition.Create(DepartmentPositionId.Create(), DepartmentId.Current(x), positionId))
+                .ToList();
+
+            var position = Position.Create(positionName.Value, positionDescription, departmentsIds, positionId);
+
+            var repositoryResult = await _positionsRepository.Add(position.Value, cancellationToken);
+            if (!repositoryResult.IsSuccess)
+            {
+                _logger.LogInformation("failed to add location");
+                return Error.Failure(null, "db problem").ToErrors();
+            }
+
+            _logger.LogInformation("Position whith id {positionId} has been created", positionId.Value);
+
+            return positionId.Value;
+        }
+    }
+}

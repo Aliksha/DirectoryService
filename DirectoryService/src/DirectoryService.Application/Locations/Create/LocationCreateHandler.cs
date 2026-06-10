@@ -1,7 +1,7 @@
 ﻿using Core.Abstractions;
 using CSharpFunctionalExtensions;
 using DirectoryService.Application.IRepositories;
-using DirectoryService.Application.Locations.Create.Validation;
+using Core.Validation;
 using DirectoryService.Contracts.Locations;
 using DirectoryService.Domain.Locations;
 using FluentValidation;
@@ -37,6 +37,13 @@ namespace DirectoryService.Application.Locations.Create
             {
                 // return GeneralErrors.ValueIsInvalid("location").ToErrors();
                 return validationResult.ToErrorList();
+            }
+
+            var chekingNameUnique = await _locationsRepository.IsNameUniqueAsync(command.Dto.Name, cancellationToken);
+            if(chekingNameUnique == false)
+            {
+                 _logger.LogInformation("name already exists");
+                 return Error.Conflict(null, "name.conflict").ToErrors();
             }
 
             var name = LocationName.Create(command.Dto.Name);

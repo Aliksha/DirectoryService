@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Text.Json;
 
-namespace DirectoryService.Application.Locations.Create.Validation
+namespace Core.Validation
 {
     public static class CustomValidators
     {

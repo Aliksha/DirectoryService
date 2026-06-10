@@ -1,19 +1,18 @@
 ﻿using CSharpFunctionalExtensions;
 using DirectoryService.Domain.DepartmentLocations;
 using DirectoryService.Domain.DepartmentPositions;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using SharedKernel;
 
 namespace DirectoryService.Domain.Departments
 {
     public class Department
     {
         // ef core
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor.
         private Department()
         {
-
         }
+#pragma warning restore CS8618
 
         private readonly List<Department> _childDepartments = [];
 
@@ -25,17 +24,19 @@ namespace DirectoryService.Domain.Departments
             DepartmentId id,
             DepartmentName name,
             Identifier identifier,
-            DepartmentId? parentId = null,
-            Path? path = null,
-            short depth = 0)
+            List<DepartmentLocation> locations, // in Create methods it's already list
+            Path path,
+            short depth = 0,
+            DepartmentId? parentId = null)
         {
             Id = id;
             Name = name;
             Identifier = identifier;
-            ParentId = parentId;
+            _departmentsLocations = locations;
             Path = path;
             Depth = depth;
             IsActive = true;
+            ParentId = parentId;
             CreatedAt = DateTime.UtcNow;
             UpdatedAt = DateTime.UtcNow;
         }
@@ -44,7 +45,7 @@ namespace DirectoryService.Domain.Departments
         public DepartmentName Name { get; private set; }
         public Identifier Identifier { get; private set; }
         public DepartmentId? ParentId { get; private set; }
-        public Path Path { get; private set; } = null!;
+        public Path Path { get; private set; }
         public short Depth { get; private set; }
         public bool IsActive { get; private set; }
         public IReadOnlyList<Department> ChildDepartments => _childDepartments;
@@ -53,17 +54,39 @@ namespace DirectoryService.Domain.Departments
         public DateTime CreatedAt { get; private set; }
         public DateTime UpdatedAt { get; private set; }
 
-        // сохдать корневой дапартмент
-        public static Result<Department> Create(DepartmentName name, Identifier identifier)
+        public static Result<Department, Error> CreateParent(
+            DepartmentName name,
+            Identifier identifier,
+            IEnumerable<DepartmentLocation> connectionsWithLocations,
+            DepartmentId? departmentId = null)
         {
-            if (name is null)
-                return Result.Failure<Department>("Name is required.");
-            if (string.IsNullOrWhiteSpace(identifier.Value))
-                return Result.Failure<Department>("Identifier is required.");
+            var connectionsWithLocationsList = connectionsWithLocations.ToList(); // список не самих локаций, а связей с ними
 
-            var id = DepartmentId.Create();
+            if (connectionsWithLocationsList.Count == 0)
+                return GeneralErrors.ValueIsRequired("department.locations.empty");
 
-            return Result.Success(new Department(id, name, identifier));
+            var path = Path.CreateParent(identifier);
+
+            return new Department(departmentId ?? DepartmentId.Create(), name, identifier, connectionsWithLocationsList, path, 0);
+        }
+
+        public static Result<Department, Error> CreateChild(
+            DepartmentName name,
+            Identifier identifier,
+            Department parent,
+            IEnumerable<DepartmentLocation> connectionsWithLocations,
+            DepartmentId? departmentId = null)
+        {
+            var connectionsWithLocationsList = connectionsWithLocations.ToList();
+
+            if (connectionsWithLocationsList.Count == 0)
+                return GeneralErrors.ValueIsRequired("department.locations.empty");
+
+            var path = Path.CreateChild(parent.Path, identifier);
+
+            var parentId = parent.Id;
+
+            return new Department(departmentId ?? DepartmentId.Create(), name, identifier, connectionsWithLocationsList, path, (short)(parent.Depth + 1), parentId);
         }
     }
 }
