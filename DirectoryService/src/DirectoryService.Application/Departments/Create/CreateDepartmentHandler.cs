@@ -53,7 +53,7 @@ namespace DirectoryService.Application.Departments.Create
                 return chekExistingLocationResult.Error;
 
             // обязательная материализация коллекции .ToList
-            var locationIds = command.Dto.LocationsId
+            var departmentLocations = command.Dto.LocationsId
                 .Select(l => DepartmentLocation.Create(DepartmentLocationId.Create(), departmentId, LocationId.Current(l)))
                 .ToList();
 
@@ -62,7 +62,7 @@ namespace DirectoryService.Application.Departments.Create
             // родительский / дочерий департамент
             if (command.Dto.ParentId == null)
             {
-                var createParentResult = Department.CreateParent(departmentName.Value, departmentIdentifier.Value, locationIds);
+                var createParentResult = Department.CreateParent(departmentName.Value, departmentIdentifier.Value, departmentLocations);
                 if (createParentResult.IsFailure)
                     return createParentResult.Error.ToErrors();
 
@@ -81,7 +81,7 @@ namespace DirectoryService.Application.Departments.Create
                     return GeneralErrors.NotFound(parentIdValue, "parent.department").ToErrors();
                 }
 
-                var childDepartmentResult = Department.CreateChild(departmentName.Value, departmentIdentifier.Value, parentDepartment, locationIds, departmentId);
+                var childDepartmentResult = Department.CreateChild(departmentName.Value, departmentIdentifier.Value, parentDepartment, departmentLocations, departmentId);
                 if (childDepartmentResult.IsFailure)
                     return childDepartmentResult.Error.ToErrors();
 

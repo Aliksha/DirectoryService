@@ -46,9 +46,11 @@ namespace DirectoryService.Infrastructure.Repositories
         {
             var distincts = ids.Distinct().ToArray();
 
+            var departmentIds = distincts.Select(DepartmentId.Current).ToArray();
+
             var existings = await _context.Departments
-                 .Where(x => distincts.Contains((Guid)(object)x.Id))
-                 .Select(x => (Guid)(object)x.Id)
+                 .Where(x => departmentIds.Contains(x.Id))
+                 .Select(x => x.Id.Value)
                  .ToListAsync(cancellationToken);
 
             var missings = distincts.Except(existings).ToArray();

@@ -10,6 +10,7 @@ using System.Text.Json;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using DirectoryService.Contracts.Locations;
 
 namespace DirectoryService.Infrastructure.Repositories.DapperRepositories
 {
@@ -117,7 +118,79 @@ namespace DirectoryService.Infrastructure.Repositories.DapperRepositories
             }
         }
 
-        public Task<Result<IReadOnlyCollection<Location>, Errors>> GetLocationsAsync(List<LocationId> ids, CancellationToken cancellationToken = default) => throw new NotImplementedException();
+        public async Task<Result<IReadOnlyCollection<Location>, Errors>> GetLocationsAsync(List<LocationId> ids, CancellationToken cancellationToken = default)
+        {
+            if (ids == null || ids.Count == 0)
+            {
+                IReadOnlyCollection<Location> emptyList = Array.Empty<Location>();
+                return Result.Success<IReadOnlyCollection<Location>, Errors>(emptyList);
+            }
+
+            var rawIds = ids.Select(id => id.Value).Distinct().ToArray();
+
+            const string sql = @"
+                SELECT id, name, address, is_active, timezone, created_at, updated_at 
+                FROM locations 
+                WHERE id = ANY(@Ids);";
+
+            try
+            {
+                using var connection = await _connectionFactory.CreateConnectionAsync(cancellationToken);
+
+                var command = new CommandDefinition(sql, new { Ids = rawIds }, cancellationToken: cancellationToken);
+
+                var dbRows = await connection.QueryAsync<dynamic>(command);
+                var locationsList = new List<Location>();
+
+                foreach (var row in dbRows)
+                {
+                    var locationId = LocationId.Current(row.id);
+                    var locationName = LocationName.Create(row.name).Value;
+                    var timezone = Timezone.Create(row.timezone).Value;
+
+                    string addressJson = row.address;
+                    var jsonAddressDto = JsonSerializer.Deserialize<AddressDto>(addressJson);
+                    var address = Address.Create(
+                        jsonAddressDto.HouseNumber,
+                        jsonAddressDto.Street,
+                        jsonAddressDto.City,
+                        jsonAddressDto.Country).Value;
+
+                    // регенерация Location через рефлексию т.к. конструктор private
+                    var location = (Location)Activator.CreateInstance( // метод Activator по умолчанию возвращает object, явно преобразуем обратно в Location
+                        typeof(Location),
+                        System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance,
+                        null, // параметр Binder (обычно не используется, передается null)
+                        [locationId, locationName, address, timezone],
+                        null // культура (CultureInfo), для конструкторов обычно не нужна
+                    );
+
+                    typeof(Location).GetProperty(nameof(Location.IsActive))?.SetValue(location, row.is_active);
+                    typeof(Location).GetProperty(nameof(Location.CreatedAt))?.SetValue(location, row.created_at);
+                    typeof(Location).GetProperty(nameof(Location.UpdatedAt))?.SetValue(location, row.updated_at);
+
+                    // если в домене есть специальный фабричный метод для регенерации из бд
+                    // var location = Location.Reconstitute(
+                    //    locationId,
+                    //    locationName,
+                    //    address,
+                    //    timezone,
+                    //    row.is_active,
+                    //    row.created_at,
+                    //    row.updated_at);
+
+                    locationsList.Add(location);
+                }
+
+                IReadOnlyCollection<Location> resultCollection = locationsList.AsReadOnly();
+                return Result.Success<IReadOnlyCollection<Location>, Errors>(resultCollection);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while fetching locations by IDs via Dapper");
+                return Error.Failure("database.error", "Failed to fetch locations from the database").ToErrors();
+            }
+        }
 
         public async Task<bool> IsNameUniqueAsync(string name, CancellationToken cancellationToken)
         {

@@ -42,5 +42,24 @@ namespace DirectoryService.Domain.Locations
             return new Location(id, name, address, timezone/*, departments*/);
         }
 
+        // исключительно для репозиториев Dapper/EF
+        //public static Location Reconstitute(
+        //    LocationId id,
+        //    LocationName name,
+        //    Address address,
+        //    Timezone timezone,
+        //    bool isActive,
+        //    DateTime createdAt,
+        //    DateTime updatedAt)
+        //{
+        //    var location = new Location(id, name, address, timezone);
+
+        //    // заполнение системных свойств
+        //    location.IsActive = isActive;
+        //    location.CreatedAt = createdAt;
+        //    location.UpdatedAt = updatedAt;
+
+        //    return location;
+        //}
     }
 }
