@@ -1,5 +1,6 @@
 ﻿using CSharpFunctionalExtensions;
 using DirectoryService.Domain.DepartmentLocations;
+using SharedKernel;
 using System;
 using System.Collections.Generic;
 using System.Net;
@@ -61,5 +62,39 @@ namespace DirectoryService.Domain.Locations
 
         //    return location;
         //}
+
+
+        // Точечные доменные методы для PATCH-операций
+        public void Rename(LocationName newName)
+        {
+            if (newName is null)
+                throw new ArgumentNullException(nameof(newName));
+            Name = newName;
+            UpdatedAt = DateTime.UtcNow;
+        }
+
+        public void ChangeAddress(Address newAddress)
+        {
+            Address = newAddress ?? throw new ArgumentNullException(nameof(newAddress));
+            UpdatedAt = DateTime.UtcNow;
+        }
+
+        public void ChangeTimezone(Timezone newTimezone)
+        {
+            Timezone = newTimezone ?? throw new ArgumentNullException(nameof(newTimezone));
+            UpdatedAt = DateTime.UtcNow;
+        }
+
+        public void Activate()
+        {
+            IsActive = true;
+            UpdatedAt = DateTime.UtcNow;
+        }
+
+        public void Deactivate()
+        {
+            IsActive = false;
+            UpdatedAt = DateTime.UtcNow;
+        }
     }
 }

@@ -18,5 +18,7 @@ namespace DirectoryService.Application.IRepositories
         Task<Result<Guid, Error>> AddAsync(Department department, CancellationToken cancellationToken = default);
 
         Task<UnitResult<Errors>> CheckExisting(Guid[] ids, CancellationToken cancellationToken = default);
+
+        Task<Result<Guid, Error>> UpdateAsync(Department department, CancellationToken cancellationToken = default);
     }
 }

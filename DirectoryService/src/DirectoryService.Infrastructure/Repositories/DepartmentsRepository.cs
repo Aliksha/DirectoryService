@@ -80,5 +80,20 @@ namespace DirectoryService.Infrastructure.Repositories
 
             return await query.FirstOrDefaultAsync(predicate, cancellationToken);
         }
+
+        public async Task<Result<Guid, Error>> UpdateAsync(Department department, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                _context.Departments.Update(department);
+                await _context.SaveChangesAsync(cancellationToken);
+                return department.Id.Value;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failure updating department {Department.Id}", department.Id);
+                return GeneralErrors.ValueIsInvalid("department.update.database.error");
+            }
+        }
     }
 }

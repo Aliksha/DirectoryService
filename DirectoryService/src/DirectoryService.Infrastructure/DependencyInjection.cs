@@ -23,6 +23,7 @@ namespace DirectoryService.Infrastructure
                 options.UseNpgsql(connectionString));
 
             services.AddScoped<IReadDbContext>(sp => sp.GetRequiredService<DirectoryServiceDbContext>());
+            services.AddScoped<IDepartmentLocationsRepository, DepartmentLocationsRepository>();
             services.AddScoped<IDepartmentsRepository, DepartmentsRepository>();
             services.AddScoped<IPositionsRepository, PositionsRepository>();
 
@@ -30,7 +31,7 @@ namespace DirectoryService.Infrastructure
             services.AddSingleton<IDbConnectionFactory>(_ => new SqlConnectionFactory(connectionString));
 
             // ВЫБОР РЕАЛИЗАЦИИ РЕПОЗИТОРИЯ ЛОКАЦИЙ
-            bool useDapper = true;
+            bool useDapper = false;
 
             if (useDapper)
             {
