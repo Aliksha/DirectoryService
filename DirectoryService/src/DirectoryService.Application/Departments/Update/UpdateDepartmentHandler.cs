@@ -17,15 +17,18 @@ namespace DirectoryService.Application.Departments.Update
     public class UpdateDepartmentHandler : ICommandHandler<Guid, UpdateDepartmentCommand>
     {
         private readonly IDepartmentsRepository _departmentsRepository;
+        private readonly ILocationsRepository _locationsRepository;
         private readonly IValidator<UpdateDepartmentCommand> _validator;
         private readonly ILogger<UpdateDepartmentHandler> _logger;
 
         public UpdateDepartmentHandler(
            IDepartmentsRepository departmentsRepository,
+           ILocationsRepository locationsRepository,
            IValidator<UpdateDepartmentCommand> validator,
            ILogger<UpdateDepartmentHandler> logger)
         {
             _departmentsRepository = departmentsRepository;
+            _locationsRepository = locationsRepository;
             _validator = validator;
             _logger = logger;
         }
@@ -62,6 +65,10 @@ namespace DirectoryService.Application.Departments.Update
             if(command.Dto.LocationsId != null)
             {
                 var newConnectionsWithLocations = new List<DepartmentLocation>();
+
+                var checkExisting = await _locationsRepository.CheckExisting(command.Dto.LocationsId);
+                if (checkExisting.IsFailure)
+                    return checkExisting.Error;
 
                 foreach(var locationGuid in command.Dto.LocationsId)
                 {

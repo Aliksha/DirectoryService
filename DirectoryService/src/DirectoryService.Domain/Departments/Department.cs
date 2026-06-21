@@ -123,6 +123,11 @@ namespace DirectoryService.Domain.Departments
             UpdatedAt = DateTime.UtcNow;
         }
 
+        public void Touch()
+        {
+            UpdatedAt = DateTime.Now;
+        }
+
         public void Activate()
         {
             IsActive = true;

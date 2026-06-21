@@ -63,6 +63,8 @@ namespace DirectoryService.Application.Departments.ConnectToLocation
                 return Error.Failure(null, "db problem").ToErrors();
             }
 
+            // можно выгрузить department с бд и вызвать доменный Touch - поменять UpdatedAt
+
             return departmentLocationId.Value;
         }
     }
