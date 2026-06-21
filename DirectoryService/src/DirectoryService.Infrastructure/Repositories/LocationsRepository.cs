@@ -70,6 +70,16 @@ namespace DirectoryService.Infrastructure.Repositories
             return UnitResult.Success<Errors>();
         }
 
+        public async Task<Result<Location, Error>> GetById(LocationId id, CancellationToken cancellationToken = default)
+        {
+            var location = await _context.Locations.FirstOrDefaultAsync(l => l.Id == id, cancellationToken);
+
+            if (location is null)
+                return GeneralErrors.NotFound(id.Value, "location.not.found");
+
+            return location;
+        }
+
         public async Task<Result<IReadOnlyCollection<Location>, Errors>> GetLocationsAsync(List<LocationId> ids, CancellationToken cancellationToken = default)
         {
             // защита от лишнего запроса к БД
@@ -100,5 +110,24 @@ namespace DirectoryService.Infrastructure.Repositories
         }
 
         public async Task<bool> IsNameUniqueAsync(string name, CancellationToken cancellationToken) => !await _context.LocationsRead.AnyAsync(x => x.Name.Value == name, cancellationToken);
+
+        public async Task<Result<Guid, Error>> UpdateAsync(Location location, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                // пометить сущность как измененную (полезно, если объект пришел из другого контекста,
+                // а если он уже отслеживается — EF Core просто проигнорирует повторное прикрепление)
+                _context.Locations.Update(location);
+
+                await _context.SaveChangesAsync(cancellationToken);
+
+                return location.Id.Value;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failure updating location {Location.Id}", location.Id);
+                return GeneralErrors.ValueIsInvalid("location.update.database.error");
+            }
+        }
     }
 }

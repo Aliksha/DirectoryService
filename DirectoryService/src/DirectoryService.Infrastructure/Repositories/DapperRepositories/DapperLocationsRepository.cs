@@ -118,6 +118,8 @@ namespace DirectoryService.Infrastructure.Repositories.DapperRepositories
             }
         }
 
+        public Task<Result<Location, Error>> GetById(LocationId id, CancellationToken cancellationToken = default) => throw new NotImplementedException();
+
         public async Task<Result<IReadOnlyCollection<Location>, Errors>> GetLocationsAsync(List<LocationId> ids, CancellationToken cancellationToken = default)
         {
             if (ids == null || ids.Count == 0)
@@ -216,5 +218,7 @@ namespace DirectoryService.Infrastructure.Repositories.DapperRepositories
                 throw;
             }
         }
+
+        public Task<Result<Guid, Error>> UpdateAsync(Location location, CancellationToken cancellationToken = default) => throw new NotImplementedException();
     }
 }

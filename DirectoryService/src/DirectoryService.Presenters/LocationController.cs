@@ -2,6 +2,7 @@
 using CSharpFunctionalExtensions;
 using DirectoryService.Application.Locations.Create;
 using DirectoryService.Application.Locations.Get;
+using DirectoryService.Application.Locations.Update;
 using DirectoryService.Contracts.Locations;
 using Framework.EndpointResults;
 using Microsoft.AspNetCore.Http;
@@ -33,6 +34,17 @@ namespace DirectoryService.Presenters
             var query = new LocationsGetQuery(dto);
 
             return await handler.Handle(query, cancellationToken);
+        }
+
+        [HttpPatch]
+        public async Task<EndpointResult<Guid>> Update(
+            [FromBody] UpdateLocationDto dto,
+            [FromServices] ICommandHandler<Guid, UpdateLocationCommand> handler,
+            CancellationToken cancellationToken)
+        {
+            var command = new UpdateLocationCommand(dto);
+
+            return await handler.Handle(command, cancellationToken);
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using CSharpFunctionalExtensions;
 using DirectoryService.Domain.DepartmentLocations;
 using DirectoryService.Domain.DepartmentPositions;
+using DirectoryService.Domain.Locations;
 using SharedKernel;
 
 namespace DirectoryService.Domain.Departments
@@ -87,6 +88,56 @@ namespace DirectoryService.Domain.Departments
             var parentId = parent.Id;
 
             return new Department(departmentId ?? DepartmentId.Create(), name, identifier, connectionsWithLocationsList, path, (short)(parent.Depth + 1), parentId);
+        }
+
+        public void Rename(DepartmentName newName)
+        {
+            if(newName is null)
+                throw new ArgumentNullException(nameof(newName));
+
+            Name = newName;
+            UpdatedAt = DateTime.UtcNow;
+        }
+
+        public void UpdateIdentifier(Identifier identifier)
+        {
+            if (identifier is null)
+                throw new ArgumentNullException(nameof(identifier));
+
+            Identifier = identifier;
+            UpdatedAt = DateTime.UtcNow;
+        }
+
+        public void UpdateLocations(IEnumerable<DepartmentLocation> newConnectionsWithLocations)
+        {
+            if (newConnectionsWithLocations is null)
+                throw new ArgumentNullException(nameof(newConnectionsWithLocations));
+
+            // Очищаем старые связи в приватном списке (EF Core зафиксирует удаление)
+            // (меняем содержимое списка, не меняя ссылку на сам список
+            // ТАК НЕЛЬЗЯ (будет ошибка компиляции из-за readonly)
+            //_departmentsLocations = newConnectionsWithLocations.ToList(); )
+
+            _departmentsLocations.Clear();
+            _departmentsLocations.AddRange(newConnectionsWithLocations);
+            UpdatedAt = DateTime.UtcNow;
+        }
+
+        public void Touch()
+        {
+            UpdatedAt = DateTime.Now;
+        }
+
+        public void Activate()
+        {
+            IsActive = true;
+            UpdatedAt = DateTime.UtcNow;
+        }
+
+        public void Deactivate()
+        {
+            IsActive = false;
+            UpdatedAt = DateTime.UtcNow;
         }
     }
 }
