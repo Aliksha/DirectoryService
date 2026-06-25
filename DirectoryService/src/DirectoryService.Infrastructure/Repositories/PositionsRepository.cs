@@ -25,14 +25,14 @@ namespace DirectoryService.Infrastructure.Repositories
         {
             try
             {
-                await _context.AddAsync(position, cancellationToken);
-                await _context.SaveChangesAsync(cancellationToken);
-                _logger.LogInformation("Position {Position.Id} has been created", position.Id);
+                _context.Add(position);
+                //await _context.SaveChangesAsync(cancellationToken);
+                _logger.LogInformation("Position {Position.Id} registered in memory tracker", position.Id);
                 return position.Id.Value;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failure adding position {Position.Id}", position.Id);
+                _logger.LogError(ex, "Failure registering position {Position.Id} in tracker", position.Id);
                 return GeneralErrors.DataBase();
             }
         }

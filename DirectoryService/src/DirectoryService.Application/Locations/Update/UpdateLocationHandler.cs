@@ -1,6 +1,7 @@
 ﻿using Core.Abstractions;
 using Core.Validation;
 using CSharpFunctionalExtensions;
+using DirectoryService.Application.Db;
 using DirectoryService.Application.IRepositories;
 using DirectoryService.Domain.Departments;
 using DirectoryService.Domain.Locations;
@@ -17,12 +18,18 @@ namespace DirectoryService.Application.Locations.Update
     public class UpdateLocationHandler : ICommandHandler<Guid, UpdateLocationCommand>
     {
         private readonly ILocationsRepository _locationsRepository;
+        private readonly ITransactionManager _transactionManager;
         private readonly IValidator<UpdateLocationCommand> _validator;
         private readonly ILogger<UpdateLocationHandler> _logger;
 
-        public UpdateLocationHandler(ILocationsRepository locationsRepository, IValidator<UpdateLocationCommand> validator, ILogger<UpdateLocationHandler> logger)
+        public UpdateLocationHandler(
+            ILocationsRepository locationsRepository,
+            ITransactionManager transactionManager,
+            IValidator<UpdateLocationCommand> validator,
+            ILogger<UpdateLocationHandler> logger)
         {
             _locationsRepository = locationsRepository;
+            _transactionManager = transactionManager;
             _validator = validator;
             _logger = logger;
         }
@@ -34,6 +41,15 @@ namespace DirectoryService.Application.Locations.Update
                 return validationResult.ToErrorList();
 
             var locationId = LocationId.Current(command.Dto.Id);
+
+            var transactionScopeResult = await _transactionManager.BeginTransactionAsync(cancellationToken);
+            if (transactionScopeResult.IsFailure)
+            {
+                return transactionScopeResult.Error.ToErrors();
+            }
+
+            using var transactionScope = transactionScopeResult.Value;
+
             var locationResult = await _locationsRepository.GetById(locationId, cancellationToken);
             if(locationResult.IsFailure)
             {
@@ -87,6 +103,18 @@ namespace DirectoryService.Application.Locations.Update
             {
                 _logger.LogInformation("failed to update location");
                 return Error.Failure(null, "db problem").ToErrors();
+            }
+
+            var saveChangesAsync = await _transactionManager.SaveChangesAsync(cancellationToken);
+            if (saveChangesAsync.IsFailure)
+            {
+                return saveChangesAsync.Error.ToErrors();
+            }
+
+            var commitedResult = transactionScope.Commit();
+            if (commitedResult.IsFailure)
+            {
+                commitedResult.Error.ToErrors();
             }
 
             _logger.LogInformation("Location with id {locationId} has been updated", locationId.Value);

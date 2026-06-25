@@ -27,17 +27,21 @@ namespace DirectoryService.Infrastructure.Repositories
         {
             try
             {
-                await _context.Departments.AddAsync(department, cancellationToken);
-                await _context.SaveChangesAsync(cancellationToken);
+                _context.Departments.Add(department);
 
-                _logger.LogInformation("Department {Department.Id} created", department.Id);
+                _logger.LogInformation("Department {DepartmentId} registered in memory tracker", department.Id.Value);
 
-                return department.Id.Value;
+                return Result.Success<Guid, Error>(department.Id.Value);
+
+                //await _context.SaveChangesAsync(cancellationToken);
+                //_logger.LogInformation("Department {Department.Id} created", department.Id);
+                //return department.Id.Value;
 
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failure adding department {DepartmentId}", department.Id);
+                _logger.LogError(ex, "Failure registering department {DepartmentId} in tracker", department.Id.Value);
+
                 return GeneralErrors.DataBase();
             }
         }
@@ -85,13 +89,21 @@ namespace DirectoryService.Infrastructure.Repositories
         {
             try
             {
+                // пометить сущность в трекере EF Core как измененную Modified
                 _context.Departments.Update(department);
-                await _context.SaveChangesAsync(cancellationToken);
-                return department.Id.Value;
+
+                _logger.LogInformation("Department {DepartmentId} update tracked in memory", department.Id.Value);
+
+                return Result.Success<Guid, Error>(department.Id.Value);
+
+                //_context.Departments.Update(department);
+                //await _context.SaveChangesAsync(cancellationToken);
+                //return department.Id.Value;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failure updating department {Department.Id}", department.Id);
+                _logger.LogError(ex, "Failure tracking department update {DepartmentId}", department.Id.Value);
+
                 return GeneralErrors.ValueIsInvalid("department.update.database.error");
             }
         }

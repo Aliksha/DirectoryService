@@ -1,6 +1,7 @@
 ﻿using Core.Abstractions;
 using Core.Validation;
 using CSharpFunctionalExtensions;
+using DirectoryService.Application.Db;
 using DirectoryService.Application.IRepositories;
 using DirectoryService.Domain.DepartmentLocations;
 using DirectoryService.Domain.Departments;
@@ -18,17 +19,20 @@ namespace DirectoryService.Application.Departments.Update
     {
         private readonly IDepartmentsRepository _departmentsRepository;
         private readonly ILocationsRepository _locationsRepository;
+        private readonly ITransactionManager _transactionManager;
         private readonly IValidator<UpdateDepartmentCommand> _validator;
         private readonly ILogger<UpdateDepartmentHandler> _logger;
 
         public UpdateDepartmentHandler(
            IDepartmentsRepository departmentsRepository,
            ILocationsRepository locationsRepository,
+           ITransactionManager transactionManager,
            IValidator<UpdateDepartmentCommand> validator,
            ILogger<UpdateDepartmentHandler> logger)
         {
             _departmentsRepository = departmentsRepository;
             _locationsRepository = locationsRepository;
+            _transactionManager = transactionManager;
             _validator = validator;
             _logger = logger;
         }
@@ -40,6 +44,15 @@ namespace DirectoryService.Application.Departments.Update
                 return validationResult.ToErrorList();
 
             var departmentId = DepartmentId.Current(command.Dto.Id);
+
+            var transactionScopeResult = await _transactionManager.BeginTransactionAsync(cancellationToken);
+            if (transactionScopeResult.IsFailure)
+            {
+                return transactionScopeResult.Error.ToErrors();
+            }
+
+            using var transactionScope = transactionScopeResult.Value;
+
             var departmentResult = await _departmentsRepository.GetBy(x => x.Id == departmentId, cancellationToken, x => x.Locations);
             if (departmentResult == null)
                 return GeneralErrors.NotFound(departmentId.Value, "department").ToErrors();
@@ -91,6 +104,18 @@ namespace DirectoryService.Application.Departments.Update
             {
                 _logger.LogInformation("failed to update department");
                 return Error.Failure(null, "db problem").ToErrors();
+            }
+
+            var saveChangesAsync = await _transactionManager.SaveChangesAsync(cancellationToken);
+            if (saveChangesAsync.IsFailure)
+            {
+                return saveChangesAsync.Error.ToErrors();
+            }
+
+            var commitedResult = transactionScope.Commit();
+            if (commitedResult.IsFailure)
+            {
+                commitedResult.Error.ToErrors();
             }
 
             _logger.LogInformation("department with id {departmentId} has been updated", departmentId.Value);
