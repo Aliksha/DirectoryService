@@ -1,5 +1,6 @@
 ﻿using CSharpFunctionalExtensions;
 using DirectoryService.Application.IRepositories;
+using DirectoryService.Domain.Departments;
 using DirectoryService.Domain.Locations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -25,17 +26,15 @@ namespace DirectoryService.Infrastructure.Repositories
         {
             try
             {
-                await _context.Locations.AddAsync(location, cancellationToken);
+                _context.Locations.Add(location);
 
-                await _context.SaveChangesAsync(cancellationToken);
-
-                _logger.LogInformation("Location {Location.Id} created", location.Id);
+                _logger.LogInformation("Location {Location.Id} registered in memory tracker", location.Id);
 
                 return location.Id.Value;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failure adding location {Location.Id}", location.Id);
+                _logger.LogError(ex, "Failure registering location {Location.Id} in tracker", location.Id);
                 return GeneralErrors.DataBase();
             }
         }
@@ -118,9 +117,7 @@ namespace DirectoryService.Infrastructure.Repositories
                 // пометить сущность как измененную (полезно, если объект пришел из другого контекста,
                 // а если он уже отслеживается — EF Core просто проигнорирует повторное прикрепление)
                 _context.Locations.Update(location);
-
-                await _context.SaveChangesAsync(cancellationToken);
-
+                _logger.LogInformation("Location {LocationId} update tracked in memory", location.Id.Value);
                 return location.Id.Value;
             }
             catch (Exception ex)

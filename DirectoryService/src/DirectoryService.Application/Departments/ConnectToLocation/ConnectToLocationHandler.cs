@@ -1,5 +1,6 @@
 ﻿using Core.Abstractions;
 using CSharpFunctionalExtensions;
+using DirectoryService.Application.Db;
 using DirectoryService.Application.IRepositories;
 using DirectoryService.Domain.DepartmentLocations;
 using DirectoryService.Domain.Departments;
@@ -15,17 +16,20 @@ namespace DirectoryService.Application.Departments.ConnectToLocation
     public class ConnectToLocationHandler : ICommandHandler<Guid, ConnectToLocationCommand>
     {
         private readonly IDepartmentsRepository _departmentsRepository;
+        private readonly ITransactionManager _transactionManager;
         private readonly ILocationsRepository _locationsRepository;
         private readonly IDepartmentLocationsRepository _departmentLocationsRepository;
         private readonly ILogger<ConnectToLocationHandler> _logger;
 
         public ConnectToLocationHandler(
             IDepartmentsRepository departmentsRepository,
+            ITransactionManager transactionManager,
             ILocationsRepository locationsRepository,
             IDepartmentLocationsRepository departmentLocationsRepository,
             ILogger<ConnectToLocationHandler> logger)
         {
             _departmentsRepository = departmentsRepository;
+            _transactionManager = transactionManager;
             _locationsRepository = locationsRepository;
             _departmentLocationsRepository = departmentLocationsRepository;
             _logger = logger;
@@ -35,6 +39,15 @@ namespace DirectoryService.Application.Departments.ConnectToLocation
         {
             var departmentId = DepartmentId.Current(command.Dto.DepartmentId);
             var locationId = LocationId.Current(command.Dto.LocationId);
+
+            var transactionScopeResult = await _transactionManager.BeginTransactionAsync(cancellationToken);
+            if (transactionScopeResult.IsFailure)
+            {
+                return transactionScopeResult.Error.ToErrors();
+            }
+
+            // using сам сделает Rollback при любой ошибке
+            using var transactionScope = transactionScopeResult.Value;
 
             var checkDepartment = await _departmentsRepository.CheckExisting(new[] { departmentId.Value }, cancellationToken);
             if(checkDepartment.IsFailure)
@@ -50,7 +63,9 @@ namespace DirectoryService.Application.Departments.ConnectToLocation
 
             bool connectionAlreadyExists = await _departmentLocationsRepository.IsConnectedAlready(departmentId, locationId, cancellationToken);
             if (connectionAlreadyExists)
+            {
                 return GeneralErrors.ValueIsInvalid("department.location.already.connected").ToErrors();
+            }
 
             var departmentLocationId = DepartmentLocationId.Create();
 
@@ -64,6 +79,18 @@ namespace DirectoryService.Application.Departments.ConnectToLocation
             }
 
             // можно выгрузить department с бд и вызвать доменный Touch - поменять UpdatedAt
+
+            var saveChangesAsync = await _transactionManager.SaveChangesAsync(cancellationToken);
+            if (saveChangesAsync.IsFailure)
+            {
+                return saveChangesAsync.Error.ToErrors();
+            }
+
+            var commitedResult = transactionScope.Commit();
+            if (commitedResult.IsFailure)
+            {
+                return commitedResult.Error.ToErrors();
+            }
 
             return departmentLocationId.Value;
         }

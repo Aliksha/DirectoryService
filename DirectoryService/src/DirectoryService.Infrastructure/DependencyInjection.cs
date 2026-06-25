@@ -26,6 +26,7 @@ namespace DirectoryService.Infrastructure
             services.AddScoped<IDepartmentLocationsRepository, DepartmentLocationsRepository>();
             services.AddScoped<IDepartmentsRepository, DepartmentsRepository>();
             services.AddScoped<IPositionsRepository, PositionsRepository>();
+            services.AddScoped<ITransactionManager, TransactionManager>();
 
             // фабрика для Dapper
             services.AddSingleton<IDbConnectionFactory>(_ => new SqlConnectionFactory(connectionString));

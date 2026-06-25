@@ -1,6 +1,7 @@
 ﻿using Core.Abstractions;
 using Core.Validation;
 using CSharpFunctionalExtensions;
+using DirectoryService.Application.Db;
 using DirectoryService.Application.IRepositories;
 using DirectoryService.Contracts.Departments;
 using DirectoryService.Domain.DepartmentLocations;
@@ -21,17 +22,20 @@ namespace DirectoryService.Application.Departments.Create
     {
         private readonly IDepartmentsRepository _departmentsRepository;
         private readonly ILocationsRepository _locationsRepository;
+        private readonly ITransactionManager _transactionManager;
         private readonly IValidator<DepartmentCreateDto> _validator;
         private readonly ILogger<CreateDepartmentHandler> _logger;
 
         public CreateDepartmentHandler(
             IDepartmentsRepository departmentsRepository,
             ILocationsRepository locationsRepository,
+            ITransactionManager transactionManager,
             IValidator<DepartmentCreateDto> validator,
             ILogger<CreateDepartmentHandler> logger)
         {
             _departmentsRepository = departmentsRepository;
             _locationsRepository = locationsRepository;
+            _transactionManager = transactionManager;
             _validator = validator;
             _logger = logger;
         }
@@ -46,6 +50,14 @@ namespace DirectoryService.Application.Departments.Create
             var departmentName = DepartmentName.Create(command.Dto.Name);
             var departmentIdentifier = Identifier.Create(command.Dto.Identifier);
             var parentId = command.Dto.ParentId;
+
+            var transactionScopeResult = await _transactionManager.BeginTransactionAsync(cancellationToken);
+            if (transactionScopeResult.IsFailure)
+            {
+                return transactionScopeResult.Error.ToErrors();
+            }
+
+            using var transactionScope = transactionScopeResult.Value;
 
             // тут сделать  проверку на существование локации
             var chekExistingLocationResult = await _locationsRepository.CheckExisting(command.Dto.LocationsId, cancellationToken);
@@ -93,6 +105,18 @@ namespace DirectoryService.Application.Departments.Create
             {
                 _logger.LogInformation("failed to add department");
                 return Error.Failure(null, "db problem").ToErrors();
+            }
+
+            var saveChangesAsync = await _transactionManager.SaveChangesAsync(cancellationToken);
+            if (saveChangesAsync.IsFailure)
+            {
+                return saveChangesAsync.Error.ToErrors();
+            }
+
+            var commitedResult = transactionScope.Commit();
+            if (commitedResult.IsFailure)
+            {
+                return commitedResult.Error.ToErrors();
             }
 
             _logger.LogInformation("Department with id {departmentId} has been added", departmentId.Value);

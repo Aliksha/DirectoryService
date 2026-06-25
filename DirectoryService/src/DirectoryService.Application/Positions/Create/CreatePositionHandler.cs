@@ -1,6 +1,7 @@
 ﻿using Core.Abstractions;
 using Core.Validation;
 using CSharpFunctionalExtensions;
+using DirectoryService.Application.Db;
 using DirectoryService.Application.IRepositories;
 using DirectoryService.Contracts.Positions;
 using DirectoryService.Domain.DepartmentPositions;
@@ -19,17 +20,20 @@ namespace DirectoryService.Application.Positions.Create
     {
         private readonly IPositionsRepository _positionsRepository;
         private readonly IDepartmentsRepository _departmentsRepository;
+        private readonly ITransactionManager _transactionManager;
         private readonly IValidator<CreatePositionDto> _validator;
         private readonly ILogger<CreatePositionHandler> _logger;
 
         public CreatePositionHandler(
             IPositionsRepository positionsRepository,
             IDepartmentsRepository departmentsRepository,
+            ITransactionManager transactionManager,
             IValidator<CreatePositionDto> validator,
             ILogger<CreatePositionHandler> logger)
         {
             _positionsRepository = positionsRepository;
             _departmentsRepository = departmentsRepository;
+            _transactionManager = transactionManager;
             _validator = validator;
             _logger = logger;
         }
@@ -46,6 +50,14 @@ namespace DirectoryService.Application.Positions.Create
             var positionName = PositionName.Create(command.Dto.Name);
             var positionDescription = command.Dto.Description;
 
+            var transactionScopeResult = await _transactionManager.BeginTransactionAsync(cancellationToken);
+            if (transactionScopeResult.IsFailure)
+            {
+                return transactionScopeResult.Error.ToErrors();
+            }
+
+            using var transactionScope = transactionScopeResult.Value;
+
             var existingDepartmentsCheck = await _departmentsRepository.CheckExisting(command.Dto.Departments, cancellationToken);
             if (existingDepartmentsCheck.IsFailure)
                 return existingDepartmentsCheck.Error;
@@ -61,6 +73,18 @@ namespace DirectoryService.Application.Positions.Create
             {
                 _logger.LogInformation("failed to add location");
                 return Error.Failure(null, "db problem").ToErrors();
+            }
+
+            var saveChangesAsync = await _transactionManager.SaveChangesAsync(cancellationToken);
+            if (saveChangesAsync.IsFailure)
+            {
+                return saveChangesAsync.Error.ToErrors();
+            }
+
+            var commitedResult = transactionScope.Commit();
+            if (commitedResult.IsFailure)
+            {
+                return commitedResult.Error.ToErrors();
             }
 
             _logger.LogInformation("Position whith id {positionId} has been created", positionId.Value);

@@ -29,15 +29,29 @@ namespace DirectoryService.Infrastructure.Configurations
             //    .HasMaxLength(MyConstants.Length500)
             //    .HasColumnName("name");
 
+            //builder
+            //    .OwnsOne(d => d.Name, nb =>
+            //    {
+            //        nb
+            //        .Property(x => x.Value)
+            //        .IsRequired()
+            //        .HasMaxLength(MyConstants.Length500)
+            //        .HasColumnName("name");
+            //    });
+
             builder
-                .OwnsOne(d => d.Name, nb =>
-                {
-                    nb
-                    .Property(x => x.Value)
-                    .IsRequired()
-                    .HasMaxLength(MyConstants.Length500)
-                    .HasColumnName("name");
-                });
+              .OwnsOne(d => d.Name, nb =>
+              {
+                  nb
+                  .Property(x => x.Value)
+                  .IsRequired()
+                  .HasMaxLength(MyConstants.Length500)
+                  .HasColumnName("name");
+
+                  nb.HasIndex(x => x.Value)
+                 .HasDatabaseName("uq_departments_name")
+                 .IsUnique();
+              });
 
             builder
                 .OwnsOne(d => d.Identifier, nb =>
