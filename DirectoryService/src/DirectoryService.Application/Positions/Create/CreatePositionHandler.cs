@@ -84,7 +84,7 @@ namespace DirectoryService.Application.Positions.Create
             var commitedResult = transactionScope.Commit();
             if (commitedResult.IsFailure)
             {
-                commitedResult.Error.ToErrors();
+                return commitedResult.Error.ToErrors();
             }
 
             _logger.LogInformation("Position whith id {positionId} has been created", positionId.Value);

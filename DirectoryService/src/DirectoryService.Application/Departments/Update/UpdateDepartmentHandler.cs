@@ -115,7 +115,7 @@ namespace DirectoryService.Application.Departments.Update
             var commitedResult = transactionScope.Commit();
             if (commitedResult.IsFailure)
             {
-                commitedResult.Error.ToErrors();
+                return commitedResult.Error.ToErrors();
             }
 
             _logger.LogInformation("department with id {departmentId} has been updated", departmentId.Value);

@@ -82,7 +82,7 @@ namespace DirectoryService.Application.Locations.Create
             var commitedResult = transactionScope.Commit();
             if (commitedResult.IsFailure)
             {
-                commitedResult.Error.ToErrors();
+                return commitedResult.Error.ToErrors();
             }
 
             _logger.LogInformation("location with id {location.Id} has been added", location.Value.Id.Value);

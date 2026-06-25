@@ -89,7 +89,7 @@ namespace DirectoryService.Application.Departments.ConnectToLocation
             var commitedResult = transactionScope.Commit();
             if (commitedResult.IsFailure)
             {
-                commitedResult.Error.ToErrors();
+                return commitedResult.Error.ToErrors();
             }
 
             return departmentLocationId.Value;

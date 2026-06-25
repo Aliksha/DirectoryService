@@ -116,7 +116,7 @@ namespace DirectoryService.Application.Departments.Create
             var commitedResult = transactionScope.Commit();
             if (commitedResult.IsFailure)
             {
-                commitedResult.Error.ToErrors();
+                return commitedResult.Error.ToErrors();
             }
 
             _logger.LogInformation("Department with id {departmentId} has been added", departmentId.Value);

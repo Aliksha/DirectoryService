@@ -114,7 +114,7 @@ namespace DirectoryService.Application.Locations.Update
             var commitedResult = transactionScope.Commit();
             if (commitedResult.IsFailure)
             {
-                commitedResult.Error.ToErrors();
+                return commitedResult.Error.ToErrors();
             }
 
             _logger.LogInformation("Location with id {locationId} has been updated", locationId.Value);

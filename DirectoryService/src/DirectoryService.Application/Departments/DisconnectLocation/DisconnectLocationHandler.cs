@@ -77,7 +77,7 @@ namespace DirectoryService.Application.Departments.DisconnectLocation
             var commitedResult = transactionScope.Commit();
             if (commitedResult.IsFailure)
             {
-                commitedResult.Error.ToErrors();
+                return commitedResult.Error.ToErrors();
             }
 
             return departmentId.Value;
