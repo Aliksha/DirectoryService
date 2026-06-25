@@ -28,9 +28,7 @@ namespace DirectoryService.Infrastructure.Repositories
             try
             {
                 _context.Departments.Add(department);
-
                 _logger.LogInformation("Department {DepartmentId} registered in memory tracker", department.Id.Value);
-
                 return Result.Success<Guid, Error>(department.Id.Value);
 
                 //await _context.SaveChangesAsync(cancellationToken);
@@ -91,9 +89,7 @@ namespace DirectoryService.Infrastructure.Repositories
             {
                 // пометить сущность в трекере EF Core как измененную Modified
                 _context.Departments.Update(department);
-
                 _logger.LogInformation("Department {DepartmentId} update tracked in memory", department.Id.Value);
-
                 return Result.Success<Guid, Error>(department.Id.Value);
 
                 //_context.Departments.Update(department);
@@ -103,7 +99,6 @@ namespace DirectoryService.Infrastructure.Repositories
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Failure tracking department update {DepartmentId}", department.Id.Value);
-
                 return GeneralErrors.ValueIsInvalid("department.update.database.error");
             }
         }

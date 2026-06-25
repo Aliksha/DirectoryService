@@ -53,7 +53,6 @@ namespace DirectoryService.Infrastructure.Configurations
                  .IsUnique();
               });
 
-
             builder
                 .OwnsOne(d => d.Identifier, nb =>
                 {

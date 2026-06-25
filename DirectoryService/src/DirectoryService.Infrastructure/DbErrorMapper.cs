@@ -31,12 +31,12 @@ namespace DirectoryService.Infrastructure
                     // Блокировки/дедлоки в самой СУБД
                     "40001" or "40P01" => Error.Conflict("database.lock", "Конфликт параллельного доступа к базе данных."),
 
-                    // Любая другая ошибка Postgres -> общий database failure (500)
+                    // Любая другая ошибка Postgres - 500
                     _ => GeneralErrors.DataBase()
                 };
             }
 
-            // Общий database failure (Пропала сеть, упал сервер БД -> безопасный 500)
+            // Пропала сеть, упал сервер БД - 500
             return GeneralErrors.DataBase();
         }
 
@@ -64,8 +64,6 @@ namespace DirectoryService.Infrastructure
         {
             if (constraintName != null)
             {
-                // Смотрим строго на имена из вашей миграции:
-
                 // Нарушен ключ к таблице локаций
                 if (constraintName.Contains("fk_department_locations_location_id"))
                 {
