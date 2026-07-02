@@ -28,7 +28,6 @@ namespace DirectoryService.Infrastructure.Repositories
             try
             {
                 await _context.DepartmentLocations.AddAsync(departmentLocation, cancellationToken);
-                await _context.SaveChangesAsync(cancellationToken);
 
                 _logger.LogInformation("Connection Department-Location {DepartmentLocation.Id} has been added", departmentLocation.Id);
 

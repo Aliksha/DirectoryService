@@ -25,9 +25,7 @@ namespace DirectoryService.Application.Departments.Create.Validation
 
             RuleFor(d => d.LocationsId)
                 .Must(locationIds => locationIds.Distinct().Count() == locationIds.Length)
-                .WithError(GeneralErrors.ValueIsInvalid("location.ids.wrong.lenght"))
-                .NotEmpty()
-                .WithError(GeneralErrors.ValueIsRequired("location.ids.empty"));
+                .WithError(GeneralErrors.ValueIsInvalid("location.ids.wrong.lenght"));
         }
     }
 }

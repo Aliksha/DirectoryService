@@ -28,7 +28,9 @@ try
     builder.Services.AddApplication();
     builder.Services.AddInfrastructure(builder.Configuration);
 
-    builder.Services.AddControllers();
+    builder.Services.AddControllers()
+     .AddApplicationPart(typeof(DirectoryService.Presenters.PositionController).Assembly);
+
     builder.Services.AddOpenApi();
 
     var app = builder.Build();
@@ -48,7 +50,6 @@ try
 }
 catch (Exception ex)
 {
-
     Log.Fatal(ex, "Application terminated unexpectedly");
 }
 finally

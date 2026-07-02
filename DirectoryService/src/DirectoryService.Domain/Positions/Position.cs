@@ -1,5 +1,6 @@
 ﻿using CSharpFunctionalExtensions;
 using DirectoryService.Domain.DepartmentPositions;
+using DirectoryService.Domain.Departments;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -36,6 +37,30 @@ namespace DirectoryService.Domain.Positions
         public static Result<Position> Create(PositionName name, string? description, IEnumerable<DepartmentPosition> departments, PositionId? id = null)
         {
             return new Position(id ?? PositionId.Create(), name, description, departments);
+        }
+
+        public void Rename(PositionName newName)
+        {
+            if (newName is null)
+                throw new ArgumentNullException(nameof(newName));
+
+            Name = newName;
+            UpdatedAt = DateTime.UtcNow;
+        }
+
+        public void UpdateDescription(string newDescription)
+        {
+            if (newDescription is null)
+                throw new ArgumentNullException(nameof(newDescription));
+            Description = newDescription;
+            UpdatedAt = DateTime.UtcNow;
+        }
+
+        public void UpdateDepartments(IEnumerable<DepartmentPosition> connectionsWithDepartments)
+        {
+            _departments.Clear();
+            _departments.AddRange(connectionsWithDepartments);
+            UpdatedAt = DateTime.UtcNow;
         }
     }
 }

@@ -9,6 +9,7 @@ using System.Text;
 
 namespace DirectoryService.Infrastructure
 {
+    // transaction Wrapper
     public class TransactionScope : ITransactionScope
     {
         private readonly IDbTransaction _transaction;
