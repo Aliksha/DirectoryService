@@ -118,6 +118,7 @@ namespace DirectoryService.Infrastructure.Repositories.DapperRepositories
             }
         }
 
+        public Task<UnitResult<Errors>> DeleteAsync(LocationId locationId, CancellationToken cancellationToken = default) => throw new NotImplementedException();
         public Task<Result<Location, Error>> GetById(LocationId id, CancellationToken cancellationToken = default) => throw new NotImplementedException();
 
         public async Task<Result<IReadOnlyCollection<Location>, Errors>> GetLocationsAsync(List<LocationId> ids, CancellationToken cancellationToken = default)

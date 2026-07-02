@@ -59,22 +59,28 @@ namespace DirectoryService.Application.Departments.Create
 
             using var transactionScope = transactionScopeResult.Value;
 
-            // тут сделать  проверку на существование локации
-            var chekExistingLocationResult = await _locationsRepository.CheckExisting(command.Dto.LocationsId, cancellationToken);
-            if (chekExistingLocationResult.IsFailure)
-                return chekExistingLocationResult.Error;
+            // инициализировать пустой список
+            var connectionsDepartmentLocations = new List<DepartmentLocation>();
 
-            // обязательная материализация коллекции .ToList
-            var departmentLocations = command.Dto.LocationsId
-                .Select(l => DepartmentLocation.Create(DepartmentLocationId.Create(), departmentId, LocationId.Current(l)))
-                .ToList();
+            // тут сделать  проверку на существование локации(не null и не пустой массив)
+            if (command.Dto.LocationsId != null && command.Dto.LocationsId.Any())
+            {
+                var chekExistingLocationResult = await _locationsRepository.CheckExisting(command.Dto.LocationsId, cancellationToken);
+                if (chekExistingLocationResult.IsFailure)
+                    return chekExistingLocationResult.Error;
+
+                // обязательная материализация коллекции .ToList
+                connectionsDepartmentLocations = command.Dto.LocationsId
+                    .Select(l => DepartmentLocation.Create(DepartmentLocationId.Create(), departmentId, LocationId.Current(l)))
+                    .ToList();
+            }
 
             Department department;
 
             // родительский / дочерий департамент
             if (command.Dto.ParentId == null)
             {
-                var createParentResult = Department.CreateParent(departmentName.Value, departmentIdentifier.Value, departmentLocations);
+                var createParentResult = Department.CreateParent(departmentName.Value, departmentIdentifier.Value, connectionsDepartmentLocations);
                 if (createParentResult.IsFailure)
                     return createParentResult.Error.ToErrors();
 
@@ -93,7 +99,7 @@ namespace DirectoryService.Application.Departments.Create
                     return GeneralErrors.NotFound(parentIdValue, "parent.department").ToErrors();
                 }
 
-                var childDepartmentResult = Department.CreateChild(departmentName.Value, departmentIdentifier.Value, parentDepartment, departmentLocations, departmentId);
+                var childDepartmentResult = Department.CreateChild(departmentName.Value, departmentIdentifier.Value, parentDepartment, connectionsDepartmentLocations, departmentId);
                 if (childDepartmentResult.IsFailure)
                     return childDepartmentResult.Error.ToErrors();
 

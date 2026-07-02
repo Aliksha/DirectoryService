@@ -19,11 +19,14 @@ namespace DirectoryService.Application.Positions.Create
             //RuleFor(p => p.Description) // vo ?
             //    .MustBeValueObject(Description.Create);
 
-            RuleFor(p => p.Departments)
-                .Must(departmentsIds => departmentsIds.Distinct().Count() == departmentsIds.Length)
-                .WithError(GeneralErrors.ValueIsInvalid("departmentsIds"))
-                .NotEmpty()
-                .WithError(GeneralErrors.ValueIsRequired("departmentsIds"));
+            _ = When(x => x.Departments != null, () =>
+            {
+                RuleFor(d => d.Departments)
+                    .Must(departmentsIds => departmentsIds.Distinct().Count() == departmentsIds.Length)
+                    .WithError(GeneralErrors.ValueIsInvalid("departments.ids.wrong.lenght"))
+                    .NotEmpty()
+                    .WithError(GeneralErrors.ValueIsRequired("departments.ids.empty"));
+            });
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using CSharpFunctionalExtensions;
 using DirectoryService.Domain.Locations;
+using DirectoryService.Domain.Positions;
 using SharedKernel;
 using System;
 using System.Collections.Generic;
@@ -20,5 +21,7 @@ namespace DirectoryService.Application.IRepositories
         Task<Result<Location, Error>> GetById(LocationId id, CancellationToken cancellationToken = default);
 
         Task<Result<Guid, Error>> UpdateAsync(Location location, CancellationToken cancellationToken = default);
+
+        Task<UnitResult<Errors>> DeleteAsync(LocationId locationId, CancellationToken cancellationToken = default);
     }
 }

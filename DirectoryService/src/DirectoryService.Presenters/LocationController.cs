@@ -1,9 +1,12 @@
 ﻿using Core.Abstractions;
 using CSharpFunctionalExtensions;
 using DirectoryService.Application.Locations.Create;
+using DirectoryService.Application.Locations.Delete;
 using DirectoryService.Application.Locations.Get;
 using DirectoryService.Application.Locations.Update;
+using DirectoryService.Application.Positions.Delete;
 using DirectoryService.Contracts.Locations;
+using DirectoryService.Contracts.Positions;
 using Framework.EndpointResults;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -44,6 +47,17 @@ namespace DirectoryService.Presenters
         {
             var command = new UpdateLocationCommand(dto);
 
+            return await handler.Handle(command, cancellationToken);
+        }
+
+        [HttpDelete("{locationId:guid}")]
+        public async Task<EndpointResult<Guid>> Delete(
+            [FromRoute] Guid locationId,
+            [FromServices] ICommandHandler<Guid, DeleteLocationCommand> handler,
+            CancellationToken cancellationToken)
+        {
+            var dto = new DeleteLocationDto(locationId);
+            var command = new DeleteLocationCommand(dto);
             return await handler.Handle(command, cancellationToken);
         }
     }

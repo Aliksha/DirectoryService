@@ -24,6 +24,7 @@ namespace DirectoryService.Infrastructure
 
             services.AddScoped<IReadDbContext>(sp => sp.GetRequiredService<DirectoryServiceDbContext>());
             services.AddScoped<IDepartmentLocationsRepository, DepartmentLocationsRepository>();
+            services.AddScoped<IDepartmentPositionsRepository, DepartmentPositionsRepository>();
             services.AddScoped<IDepartmentsRepository, DepartmentsRepository>();
             services.AddScoped<IPositionsRepository, PositionsRepository>();
             services.AddScoped<ITransactionManager, TransactionManager>();

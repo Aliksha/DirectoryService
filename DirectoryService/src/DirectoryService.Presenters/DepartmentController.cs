@@ -1,9 +1,12 @@
 ﻿using Core.Abstractions;
 using DirectoryService.Application.Departments.ConnectToLocation;
 using DirectoryService.Application.Departments.Create;
+using DirectoryService.Application.Departments.Delete;
 using DirectoryService.Application.Departments.DisconnectLocation;
 using DirectoryService.Application.Departments.Update;
+using DirectoryService.Application.Locations.Delete;
 using DirectoryService.Contracts.Departments;
+using DirectoryService.Contracts.Locations;
 using Framework.EndpointResults;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -34,6 +37,17 @@ namespace DirectoryService.Presenters
             CancellationToken cancellationToken)
         {
             var command = new UpdateDepartmentCommand(dto);
+            return await handler.Handle(command, cancellationToken);
+        }
+
+        [HttpDelete("{departmentId:guid}")]
+        public async Task<EndpointResult<Guid>> Delete(
+            [FromRoute] Guid departmentId,
+            [FromServices] ICommandHandler<Guid, DeleteDepartmentCommand> handler,
+            CancellationToken cancellationToken)
+        {
+            var dto = new DeleteDepartmentDto(departmentId);
+            var command = new DeleteDepartmentCommand(dto);
             return await handler.Handle(command, cancellationToken);
         }
 

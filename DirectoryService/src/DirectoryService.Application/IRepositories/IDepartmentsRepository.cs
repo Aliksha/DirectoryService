@@ -1,5 +1,6 @@
 ﻿using CSharpFunctionalExtensions;
 using DirectoryService.Domain.Departments;
+using DirectoryService.Domain.Locations;
 using SharedKernel;
 using System;
 using System.Collections.Generic;
@@ -20,5 +21,7 @@ namespace DirectoryService.Application.IRepositories
         Task<UnitResult<Errors>> CheckExisting(Guid[] ids, CancellationToken cancellationToken = default);
 
         Task<Result<Guid, Error>> UpdateAsync(Department department, CancellationToken cancellationToken = default);
+
+        Task<UnitResult<Errors>> DeleteAsync(DepartmentId departmentId, CancellationToken cancellationToken = default);
     }
 }

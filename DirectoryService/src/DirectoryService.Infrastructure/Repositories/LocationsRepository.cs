@@ -2,6 +2,7 @@
 using DirectoryService.Application.IRepositories;
 using DirectoryService.Domain.Departments;
 using DirectoryService.Domain.Locations;
+using DirectoryService.Domain.Positions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using SharedKernel;
@@ -67,6 +68,31 @@ namespace DirectoryService.Infrastructure.Repositories
             }
 
             return UnitResult.Success<Errors>();
+        }
+
+        public async Task<UnitResult<Errors>> DeleteAsync(LocationId locationId, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                var deleteLocation = await _context.Locations
+                    .FirstOrDefaultAsync(x => x.Id == locationId, cancellationToken);
+                if(deleteLocation == null)
+                {
+                    return GeneralErrors.NotFound(null, "location.not.found").ToErrors();
+                }
+
+                _context.Locations.Remove(deleteLocation);
+                await _context.SaveChangesAsync(cancellationToken);
+
+                _logger.LogInformation("Location {LocationId} has been deleted", locationId);
+
+                return UnitResult.Success<Errors>();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failure deleting location {LocationId}", locationId);
+                return GeneralErrors.DataBase().ToErrors();
+            }
         }
 
         public async Task<Result<Location, Error>> GetById(LocationId id, CancellationToken cancellationToken = default)
