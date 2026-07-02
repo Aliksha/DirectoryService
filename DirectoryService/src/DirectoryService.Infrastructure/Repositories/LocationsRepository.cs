@@ -82,7 +82,6 @@ namespace DirectoryService.Infrastructure.Repositories
                 }
 
                 _context.Locations.Remove(deleteLocation);
-                await _context.SaveChangesAsync(cancellationToken);
 
                 _logger.LogInformation("Location {LocationId} has been deleted", locationId);
 

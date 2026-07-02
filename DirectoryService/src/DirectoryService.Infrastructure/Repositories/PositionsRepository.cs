@@ -81,7 +81,6 @@ namespace DirectoryService.Infrastructure.Repositories
                 }
 
                 _context.Positions.Remove(deletePosition);
-                await _context.SaveChangesAsync(cancellationToken);
 
                 _logger.LogInformation("Position {PositionId} has been deleted", positionId);
 

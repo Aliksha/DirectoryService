@@ -30,7 +30,6 @@ namespace DirectoryService.Infrastructure.Repositories
             try
             {
                 await _context.DepartmentPositions.AddAsync(departmentPosition, cancellationToken);
-                await _context.SaveChangesAsync();
 
                 _logger.LogInformation("Connection Department-Position {DepartmentPosition.Id} has been added", departmentPosition.Id);
 
@@ -55,8 +54,6 @@ namespace DirectoryService.Infrastructure.Repositories
                 }
 
                 _context.DepartmentPositions.Remove(connectionToDelete);
-                await _context.SaveChangesAsync(cancellationToken);
-
 
                 _logger.LogInformation("Connection between Department {DepartmentId} and Position {PositionId} has been deleted", departmentId, positionId);
 

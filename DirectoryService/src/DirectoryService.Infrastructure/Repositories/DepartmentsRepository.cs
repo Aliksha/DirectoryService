@@ -80,7 +80,6 @@ namespace DirectoryService.Infrastructure.Repositories
                 }
 
                 _context.Departments.Remove(deleteDepartment);
-                await _context.SaveChangesAsync(cancellationToken);
 
                 _logger.LogInformation("Department {DepartmentId} has been deleted", departmentId);
 
