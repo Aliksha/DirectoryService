@@ -58,6 +58,8 @@ namespace DirectoryService.Infrastructure
 
         public IQueryable<Location> LocationsRead => Set<Location>().AsNoTracking();
 
+        public IQueryable<Department> DepartmentsRead => Set<Department>().AsNoTracking();
+
         public static readonly ILoggerFactory MyLoggerFactory
             = LoggerFactory.Create(builder => { builder.AddConsole(); });
     }

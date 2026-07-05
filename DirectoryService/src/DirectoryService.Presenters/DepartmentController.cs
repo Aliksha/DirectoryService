@@ -3,6 +3,8 @@ using DirectoryService.Application.Departments.ConnectToLocation;
 using DirectoryService.Application.Departments.Create;
 using DirectoryService.Application.Departments.Delete;
 using DirectoryService.Application.Departments.DisconnectLocation;
+using DirectoryService.Application.Departments.Get;
+using DirectoryService.Application.Departments.Get.GetById;
 using DirectoryService.Application.Departments.Update;
 using DirectoryService.Application.Locations.Delete;
 using DirectoryService.Contracts.Departments;
@@ -28,6 +30,27 @@ namespace DirectoryService.Presenters
         {
             var command = new CreateDepartmentCommand(dto);
             return await handler.Handle(command, cancellationToken);
+        }
+
+        [HttpGet]
+        public async Task<EndpointResult<DepartmentResponseDto>> Get(
+            [FromQuery] GetDepartmentDto dto, // данные фильтрации, пагинации и сортировки из Query String
+            [FromServices] IQueryHandler<DepartmentResponseDto, GetDepartmentsQuery> handler,
+            CancellationToken cancellationToken)
+        {
+            var query = new GetDepartmentsQuery(dto);
+            return await handler.Handle(query, cancellationToken);
+        }
+
+        [HttpGet("{departmentId:guid}")]
+        public async Task<EndpointResult<DepartmentByIdResponseDto>> GetById(
+            [FromRoute] Guid departmentId,
+            [FromServices] IQueryHandler<DepartmentByIdResponseDto, GetByIdDepartmentQuery> handler,
+            CancellationToken cancellationToken)
+        {
+            var dto = new GetByIdDepartmentDto(departmentId);
+            var query = new GetByIdDepartmentQuery(dto);
+            return await handler.Handle(query, cancellationToken);
         }
 
         [HttpPatch]

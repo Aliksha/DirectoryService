@@ -42,9 +42,6 @@ namespace DirectoryService.Application.Locations.Get
                 var wildcardPattern = $"%{query.Dto.Search.Trim()}%";
                 locationQuery = locationQuery.Where(l =>
                     NpgsqlDbFunctionsExtensions.ILike(EF.Functions, l.Name.Value, wildcardPattern));
-
-               // locationQuery = locationQuery.Where(l => l.Name.Value.Contains(search));
-
             }
 
             // Фильтрация по статусу
