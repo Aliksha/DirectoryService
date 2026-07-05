@@ -4,7 +4,6 @@ using DirectoryService.Application.Db;
 using DirectoryService.Contracts.Departments;
 using DirectoryService.Domain.Departments;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using SharedKernel;
 using System;
 using System.Collections.Generic;
@@ -45,6 +44,12 @@ namespace DirectoryService.Application.Departments.Get
             // Выгружаем саму сущность из БД (EF Core соберет JSON из базы в объекты C#)
             var dbDepartments = await departmentQuery.ToListAsync(cancellationToken); // Здесь запрос уходит в Postgres
 
+            // если id не найден
+            if (query.Dto.DepartmentId != null && dbDepartments.Count == 0)
+            {
+                return GeneralErrors.NotFound(query.Dto.DepartmentId.Value, "department.not.found").ToErrors();
+            }
+
             var departments = dbDepartments.Select(x => new DepartmentDto
             {
                 Id = x.Id.Value,
@@ -55,7 +60,9 @@ namespace DirectoryService.Application.Departments.Get
                 Updated = x.UpdatedAt,
             }).ToList();
 
-            return new DepartmentResponseDto(departments, totalCount);
+            var response = new DepartmentResponseDto(departments, totalCount);
+
+            return response;
         }
     }
 }

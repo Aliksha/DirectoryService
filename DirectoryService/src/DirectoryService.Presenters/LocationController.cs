@@ -1,10 +1,13 @@
 ﻿using Core.Abstractions;
 using CSharpFunctionalExtensions;
+using DirectoryService.Application.Departments.Get.GetById;
 using DirectoryService.Application.Locations.Create;
 using DirectoryService.Application.Locations.Delete;
 using DirectoryService.Application.Locations.Get;
+using DirectoryService.Application.Locations.Get.GetById;
 using DirectoryService.Application.Locations.Update;
 using DirectoryService.Application.Positions.Delete;
+using DirectoryService.Contracts.Departments;
 using DirectoryService.Contracts.Locations;
 using DirectoryService.Contracts.Positions;
 using Framework.EndpointResults;
@@ -36,6 +39,17 @@ namespace DirectoryService.Presenters
         {
             var query = new LocationsGetQuery(dto);
 
+            return await handler.Handle(query, cancellationToken);
+        }
+
+        [HttpGet("{locationId:guid}")]
+        public async Task<EndpointResult<LocationByIdResponseDto>> GetById(
+            [FromRoute] Guid locationId,
+            [FromServices] IQueryHandler<LocationByIdResponseDto, GetByIdLocationQuery> handler,
+            CancellationToken cancellationToken)
+        {
+            var dto = new GetByIdLocationDto(locationId);
+            var query = new GetByIdLocationQuery(dto);
             return await handler.Handle(query, cancellationToken);
         }
 
