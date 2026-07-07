@@ -57,17 +57,16 @@ namespace DirectoryService.Application.Departments.Get
             var sortBy = query.Dto.SortBy?.ToLower().Trim();
             var sortDir = query.Dto.SortDir?.ToLower().Trim();
 
-            // Dynamic Sorting: Includes a default fallback key to prevent pagination instability
             departmentQuery = sortBy switch
             {
                 "created" or "createdat" => sortDir == "desc"
-                     ? departmentQuery.OrderByDescending(l => l.CreatedAt)
-                     : departmentQuery.OrderBy(l => l.CreatedAt),
+                     ? departmentQuery.OrderByDescending(l => l.CreatedAt).ThenBy(l => l.Id)
+                     : departmentQuery.OrderBy(l => l.CreatedAt).ThenBy(l => l.Id),
 
                 // name/null -> отсортируют по имени по возрастанию
                 _ => sortDir == "desc"
-                    ? departmentQuery.OrderByDescending(l => l.Name.Value)
-                    : departmentQuery.OrderBy(l => l.Name.Value)
+                    ? departmentQuery.OrderByDescending(l => l.Name.Value).ThenBy(l => l.Id)
+                    : departmentQuery.OrderBy(l => l.Name.Value).ThenBy(l => l.Id)
             };
 
             int pageSize = query.Dto.PageSize ?? 20;
