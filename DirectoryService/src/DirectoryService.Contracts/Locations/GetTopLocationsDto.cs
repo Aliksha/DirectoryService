@@ -4,5 +4,5 @@ using System.Text;
 
 namespace DirectoryService.Contracts.Locations
 {
-    public record GetTopLocationsDto(int FiveLocations);
+    public record GetTopLocationsDto(int Count);
 }

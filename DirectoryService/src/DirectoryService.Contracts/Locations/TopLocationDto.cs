@@ -20,6 +20,6 @@ namespace DirectoryService.Contracts.Locations
 
         public string Timezone { get; init; } = null!;
 
-        public int DepartmentCount { get; init; } = 0!;
+        public int DepartmentCount { get; init; } = 0;
     }
 }

@@ -21,12 +21,13 @@ namespace DirectoryService.Application.Locations.GetTop
 
         public async Task<Result<TopLocationsResponseDto, Errors>> Handle(GetTopLocationsQuery query, CancellationToken cancellationToken = default)
         {
-            var queryCount = query.Dto.FiveLocations;
+            var queryCount = query.Dto.Count;
 
             var topLocationsQuery = _context.LocationsRead
                 .AsNoTracking()
                 .Where(l => l.LocDepartments.Any())
                 .OrderByDescending(l => l.LocDepartments.Count)
+                .ThenBy(l => l.Name.Value)
                 .Take(queryCount)
                 .Select(l => new TopLocationDto
                 {
