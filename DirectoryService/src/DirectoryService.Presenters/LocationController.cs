@@ -5,6 +5,7 @@ using DirectoryService.Application.Locations.Create;
 using DirectoryService.Application.Locations.Delete;
 using DirectoryService.Application.Locations.Get;
 using DirectoryService.Application.Locations.Get.GetById;
+using DirectoryService.Application.Locations.GetTop;
 using DirectoryService.Application.Locations.Update;
 using DirectoryService.Application.Positions.Delete;
 using DirectoryService.Contracts.Departments;
@@ -50,6 +51,17 @@ namespace DirectoryService.Presenters
         {
             var dto = new GetByIdLocationDto(locationId);
             var query = new GetByIdLocationQuery(dto);
+            return await handler.Handle(query, cancellationToken);
+        }
+
+        [HttpGet("top")]
+        public async Task<EndpointResult<TopLocationsResponseDto>> GetTop(
+            [FromServices] IQueryHandler<TopLocationsResponseDto, GetTopLocationsQuery> handler,
+            CancellationToken cancellationToken,
+            [FromQuery] int count = 5)
+        {
+            var dto = new GetTopLocationsDto(count);
+            var query = new GetTopLocationsQuery(dto);
             return await handler.Handle(query, cancellationToken);
         }
 
