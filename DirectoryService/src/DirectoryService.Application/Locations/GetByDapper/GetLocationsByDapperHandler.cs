@@ -44,7 +44,7 @@ namespace DirectoryService.Application.Locations.GetByDapper
             string sortBySql = dto.SortBy?.ToLower().Trim()
                 switch
             {
-                "createdat" => "fl.created_at",
+                //"createdat" => "fl.created_at",
                 "departmentcount" => "department_count",
                 _ => "fl.name"
             };
@@ -125,17 +125,17 @@ namespace DirectoryService.Application.Locations.GetByDapper
                 var rowList = rawResult.ToList();
 
                 // если база пустая, totalCount равен 0
-                long totalCount = rowList.Count > 0 ? Convert.ToInt64(rowList[0].totalcount) : 0;
+                long totalCount = rowList.Count > 0 ? Convert.ToInt64(rowList[0].TotalCount) : 0;
 
                 // маппим динамические строки даппер в дто
                 var items = rowList.Select(row => new LocationListItemDto(
-                    Id: (Guid)row.id,
-                    Name: (string)row.name,
-                    HouseNumber: (string)row.housenumber,
-                    Street: (string)row.street,
-                    City: (string)row.city,
-                    Country: (string)row.country,
-                    CreatedAt: (DateTime)row.createdat,
+                    Id: (Guid)row.Id,
+                    Name: (string)row.Name,
+                    HouseNumber: (string)row.HouseNumber,
+                    Street: (string)row.Street,
+                    City: (string)row.City,
+                    Country: (string)row.Country,
+                    CreatedAt: (DateTime)row.CreatedAt,
                     DepartmentCount: (int)row.department_count
                 )).ToList();
 
