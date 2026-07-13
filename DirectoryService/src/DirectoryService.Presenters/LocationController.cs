@@ -5,11 +5,13 @@ using DirectoryService.Application.Locations.Create;
 using DirectoryService.Application.Locations.Delete;
 using DirectoryService.Application.Locations.Get;
 using DirectoryService.Application.Locations.Get.GetById;
+using DirectoryService.Application.Locations.GetByDapper;
 using DirectoryService.Application.Locations.GetTop;
 using DirectoryService.Application.Locations.Update;
 using DirectoryService.Application.Positions.Delete;
 using DirectoryService.Contracts.Departments;
 using DirectoryService.Contracts.Locations;
+using DirectoryService.Contracts.Locations.ForDapperCase;
 using DirectoryService.Contracts.Positions;
 using Framework.EndpointResults;
 using Microsoft.AspNetCore.Http;
@@ -40,6 +42,16 @@ namespace DirectoryService.Presenters
         {
             var query = new LocationsGetQuery(dto);
 
+            return await handler.Handle(query, cancellationToken);
+        }
+
+        [HttpGet("dapper")]
+        public async Task<EndpointResult<LocationsPagedResponseDto>> GetByDapper(
+            [FromQuery] GetLocationsDto dto,
+            [FromServices] IQueryHandler<LocationsPagedResponseDto, GetLocationsQuery> handler,
+            CancellationToken cancellationToken)
+        {
+            var query = new GetLocationsQuery(dto);
             return await handler.Handle(query, cancellationToken);
         }
 
