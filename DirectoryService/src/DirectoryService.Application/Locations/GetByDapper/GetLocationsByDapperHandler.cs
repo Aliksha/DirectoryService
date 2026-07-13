@@ -44,7 +44,7 @@ namespace DirectoryService.Application.Locations.GetByDapper
             string sortBySql = dto.SortBy?.ToLower().Trim()
                 switch
             {
-                //"createdat" => "fl.created_at",
+                "createdat" or "created" => "fl.created_at",
                 "departmentcount" => "department_count",
                 _ => "fl.name"
             };
