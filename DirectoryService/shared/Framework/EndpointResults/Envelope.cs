@@ -8,7 +8,8 @@ namespace Framework.EndpointResults
 {
     public record Envelope<T>
     {
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        //[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public T? Result { get; init; }
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]

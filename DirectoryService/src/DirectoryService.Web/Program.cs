@@ -6,24 +6,60 @@ using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Serilog.Exceptions;
 
-Log.Logger = new LoggerConfiguration()
-    .MinimumLevel.Information()
-    .WriteTo.Console(formatProvider: CultureInfo.InvariantCulture)
-    .CreateBootstrapLogger();
+//Log.Logger = new LoggerConfiguration()
+//    .MinimumLevel.Information()
+//    .WriteTo.Console(formatProvider: CultureInfo.InvariantCulture)
+//    .CreateBootstrapLogger();
+
+// 1. Проверяем, запущены ли мы внутри интеграционных тестов (xUnit/testhost)
+bool isTesting = AppDomain.CurrentDomain.GetAssemblies()
+    .Any(a => a.FullName!.Contains("Microsoft.AspNetCore.Mvc.Testing") || a.FullName!.Contains("testhost"));
+
+if (!isTesting)
+{
+    // Инициализируем Serilog только для обычного запуска приложения
+    Log.Logger = new LoggerConfiguration()
+        .MinimumLevel.Information()
+        .WriteTo.Console(formatProvider: CultureInfo.InvariantCulture)
+        .CreateBootstrapLogger();
+}
 
 try
 {
-    Log.Information("Starting web application");
+    //Log.Information("Starting web application");
+
+    //var builder = WebApplication.CreateBuilder(args);
+
+    //// переключение на полную конфигурацию (из appsettings)
+    //builder.Host.UseSerilog((context, services, configuration) =>
+    //{
+    //    configuration
+    //        .ReadFrom.Configuration(context.Configuration)
+    //        .Enrich.FromLogContext()
+    //        .Enrich.WithExceptionDetails()
+    //        .Enrich.WithProperty("ServiceName", "DirectoryService");
+    //});
+
+    if (!isTesting)
+        Log.Information("Starting web application");
 
     var builder = WebApplication.CreateBuilder(args);
 
-    // переключение на полную конфигурацию (из appsettings)
-    builder.Host.UseSerilog((context, services, configuration) => configuration
-        .ReadFrom.Configuration(context.Configuration)
-        .ReadFrom.Services(services)
-        .Enrich.FromLogContext()
-        .Enrich.WithExceptionDetails()
-        .Enrich.WithProperty("ServiceName", "DirectoryService"));
+    // настраиваем Serilog для Host
+    builder.Host.UseSerilog((context, services, configuration) =>
+    {
+        configuration
+            .ReadFrom.Configuration(context.Configuration)
+            .Enrich.FromLogContext()
+            .Enrich.WithExceptionDetails()
+            .Enrich.WithProperty("ServiceName", "DirectoryService");
+
+        // подключаем службы логгера только если это НЕ тесты
+        if (!isTesting)
+        {
+            configuration.ReadFrom.Services(services);
+        }
+    });
 
     builder.Services.AddApplication();
     builder.Services.AddInfrastructure(builder.Configuration);
@@ -56,4 +92,9 @@ finally
 {
     // for resetting buffers
     Log.CloseAndFlush();
+}
+
+namespace DirectoryService.Web
+{
+    public partial class Program;
 }
