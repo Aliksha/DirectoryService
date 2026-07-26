@@ -41,7 +41,7 @@ namespace DirectoryService.IntegrationTests.Department
             // assert
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
-            var envelope = await response.Content.ReadFromJsonAsync<Envelope<Guid>>();
+            var envelope = await response.Content.ReadFromJsonAsync<Envelope<Guid, object[]>>();
 
             Assert.NotNull(envelope);
             Assert.False(envelope.IsError);
