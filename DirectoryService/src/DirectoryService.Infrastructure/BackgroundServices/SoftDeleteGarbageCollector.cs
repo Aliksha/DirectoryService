@@ -98,7 +98,7 @@ namespace DirectoryService.Infrastructure.BackgroundServices
                         // дать базе подышать
                         await Task.Delay(100, cancellationToken);
                     }
-                } while (true);
+                } while (deletedCount > 0);
             }
             catch (Exception ex)
             {
