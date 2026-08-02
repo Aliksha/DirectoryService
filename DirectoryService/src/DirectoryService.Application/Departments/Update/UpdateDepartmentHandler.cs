@@ -53,7 +53,7 @@ namespace DirectoryService.Application.Departments.Update
 
             using var transactionScope = transactionScopeResult.Value;
 
-            var departmentResult = await _departmentsRepository.GetBy(x => x.Id == departmentId, cancellationToken, x => x.Locations);
+            var departmentResult = await _departmentsRepository.GetBy(x => x.Id == departmentId, cancellationToken, false, x => x.Locations);
             if (departmentResult == null)
                 return GeneralErrors.NotFound(departmentId.Value, "department").ToErrors();
 

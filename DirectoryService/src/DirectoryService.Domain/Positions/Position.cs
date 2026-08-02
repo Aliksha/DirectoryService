@@ -24,6 +24,8 @@ namespace DirectoryService.Domain.Positions
             _departments = departments.ToList();
             CreatedAt = DateTime.UtcNow;
             UpdatedAt = DateTime.UtcNow;
+            SoftDeleted = false;
+            DeletedAt = null;
         }
 
         public PositionId Id { get; private set; }
@@ -33,6 +35,8 @@ namespace DirectoryService.Domain.Positions
         public IReadOnlyList<DepartmentPosition> Departments => _departments;
         public DateTime CreatedAt { get; private set; }
         public DateTime UpdatedAt { get; private set; }
+        public bool SoftDeleted { get; private set; }
+        public DateTime? DeletedAt { get; private set; }
 
         public static Result<Position> Create(PositionName name, string? description, IEnumerable<DepartmentPosition> departments, PositionId? id = null)
         {
@@ -61,6 +65,12 @@ namespace DirectoryService.Domain.Positions
             _departments.Clear();
             _departments.AddRange(connectionsWithDepartments);
             UpdatedAt = DateTime.UtcNow;
+        }
+
+        public void SoftDelete()
+        {
+            SoftDeleted = true;
+            DeletedAt = DateTime.UtcNow;
         }
     }
 }

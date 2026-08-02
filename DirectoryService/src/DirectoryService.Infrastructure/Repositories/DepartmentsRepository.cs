@@ -79,7 +79,9 @@ namespace DirectoryService.Infrastructure.Repositories
                     return GeneralErrors.NotFound(null, "department.not.found").ToErrors();
                 }
 
-                _context.Departments.Remove(deleteDepartment);
+                deleteDepartment.SoftDelete();
+
+                // _context.Departments.Remove(deleteDepartment);
 
                 _logger.LogInformation("Department {DepartmentId} has been deleted", departmentId);
 
@@ -95,9 +97,16 @@ namespace DirectoryService.Infrastructure.Repositories
         public async Task<Department?> GetBy(
             Expression<Func<Department, bool>> predicate,
             CancellationToken cancellationToken = default,
+            bool includeDeleted = false,
             params Expression<Func<Department, object>>[] includes)
         {
             IQueryable<Department> query = _context.Departments;
+
+            // усли надо достать "удаленное"
+            if (includeDeleted)
+            {
+                query = query.IgnoreQueryFilters();
+            }
 
             // если в метод передали связи типа d => d.Locations - накатываем их через Include
             if (includes is { Length: > 0 })

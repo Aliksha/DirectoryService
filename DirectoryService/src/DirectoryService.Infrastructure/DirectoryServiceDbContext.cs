@@ -46,7 +46,6 @@ namespace DirectoryService.Infrastructure
         {
             // вызвать базовый метод в начале
             base.OnModelCreating(modelBuilder);
-
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(DirectoryServiceDbContext).Assembly); // соберет все конфигурации
         }
 
@@ -59,6 +58,8 @@ namespace DirectoryService.Infrastructure
         public IQueryable<Location> LocationsRead => Set<Location>().AsNoTracking();
 
         public IQueryable<Department> DepartmentsRead => Set<Department>().AsNoTracking();
+
+        public IQueryable<DepartmentLocation> DepartmentLocationsRead => Set<DepartmentLocation>().AsNoTracking();
 
         public static readonly ILoggerFactory MyLoggerFactory
             = LoggerFactory.Create(builder => { builder.AddConsole(); });

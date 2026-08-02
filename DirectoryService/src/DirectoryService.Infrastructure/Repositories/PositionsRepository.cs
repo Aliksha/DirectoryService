@@ -80,7 +80,7 @@ namespace DirectoryService.Infrastructure.Repositories
                     return GeneralErrors.NotFound(null, "position.not.found").ToErrors();
                 }
 
-                _context.Positions.Remove(deletePosition);
+                deletePosition.SoftDelete();
 
                 _logger.LogInformation("Position {PositionId} has been deleted", positionId);
 

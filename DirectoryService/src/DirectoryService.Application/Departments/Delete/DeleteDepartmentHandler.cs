@@ -4,13 +4,8 @@ using DirectoryService.Application.Db;
 using DirectoryService.Application.IRepositories;
 using DirectoryService.Application.Locations.Delete;
 using DirectoryService.Domain.Departments;
-using DirectoryService.Domain.Locations;
 using Microsoft.Extensions.Logging;
 using SharedKernel;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Windows.Input;
 
 namespace DirectoryService.Application.Departments.Delete
 {

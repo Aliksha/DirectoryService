@@ -1,6 +1,7 @@
 ﻿using Dapper;
 using DirectoryService.Application.Db;
 using DirectoryService.Application.IRepositories;
+using DirectoryService.Infrastructure.BackgroundServices;
 using DirectoryService.Infrastructure.Repositories;
 using DirectoryService.Infrastructure.Repositories.DapperRepositories;
 using Microsoft.EntityFrameworkCore;
@@ -28,6 +29,12 @@ namespace DirectoryService.Infrastructure
             services.AddScoped<IDepartmentsRepository, DepartmentsRepository>();
             services.AddScoped<IPositionsRepository, PositionsRepository>();
             services.AddScoped<ITransactionManager, TransactionManager>();
+
+            // cвязываем секцию из appsettings.json с классом настроек
+            services.Configure<SoftDeleteOptions>(
+                configuration.GetSection(SoftDeleteOptions.Position));
+
+            services.AddHostedService<SoftDeleteGarbageCollector>();
 
             // фабрика для Dapper
             services.AddSingleton<IDbConnectionFactory>(_ => new SqlConnectionFactory(connectionString));

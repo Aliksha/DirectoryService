@@ -76,6 +76,18 @@ namespace DirectoryService.Infrastructure.Configurations
                 .Property(d => d.UpdatedAt)
                 .IsRequired()
                 .HasColumnName("updated_at");
+
+            builder.Property(x => x.SoftDeleted)
+                .HasDefaultValue(false);
+
+            builder.Property(x => x.DeletedAt)
+                .IsRequired(false);
+
+            // для быстрого поиска
+            builder.HasIndex(x => x.SoftDeleted)
+                .HasFilter("\"SoftDeleted\" = false");
+
+            builder.HasQueryFilter(x => !x.SoftDeleted);
         }
     }
 }
