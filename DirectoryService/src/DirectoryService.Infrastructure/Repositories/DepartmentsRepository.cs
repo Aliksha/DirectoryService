@@ -79,6 +79,14 @@ namespace DirectoryService.Infrastructure.Repositories
                     return GeneralErrors.NotFound(null, "department.not.found").ToErrors();
                 }
 
+                var hasChildren = await _context.Departments
+                    .AnyAsync(x => x.ParentId == departmentId && !x.SoftDeleted, cancellationToken);
+
+                if (hasChildren)
+                {
+                    return GeneralErrors.ValueIsInvalid("department.has.children").ToErrors();
+                }
+
                 deleteDepartment.SoftDelete();
 
                 // _context.Departments.Remove(deleteDepartment);

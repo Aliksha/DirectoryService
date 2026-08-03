@@ -40,10 +40,10 @@ namespace DirectoryService.IntegrationTests.Positions
 
             var createEnvelope = await toAddResponse.Content.ReadFromJsonAsync<Envelope<Guid, object[]>>();
             Assert.NotNull(createEnvelope);
-            var createdPositiontId = createEnvelope.Result;
+            var createdPositionId = createEnvelope.Result;
 
             // Soft Delete через API
-            var toDeleteResponse = await client.DeleteAsync($"/api/positions/{createdPositiontId}");
+            var toDeleteResponse = await client.DeleteAsync($"/api/positions/{createdPositionId}");
             Assert.Equal(HttpStatusCode.OK, toDeleteResponse.StatusCode);
 
             var deleteEnvelope = await toDeleteResponse.Content.ReadFromJsonAsync<Envelope<Guid, object[]>>();
@@ -55,7 +55,7 @@ namespace DirectoryService.IntegrationTests.Positions
             {
                 var position = await dbContext.Positions
                     .IgnoreQueryFilters()
-                    .FirstOrDefaultAsync(p => p.Id == PositionId.Current(createdPositiontId));
+                    .FirstOrDefaultAsync(p => p.Id == PositionId.Current(createdPositionId));
 
                 Assert.NotNull(position);
                 Assert.True(position.SoftDeleted, "position must be marked as soft deleted");

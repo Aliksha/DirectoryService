@@ -30,7 +30,7 @@ namespace DirectoryService.IntegrationTests.Locations
             var address = Address.Create("1", "Street", "Moscow", "Russia").Value;
             var timezone = Timezone.Create("MST").Value;
 
-            var addressDto = new AddressDto(address.HouseNumber, address.Street, address.City, address.HouseNumber);
+            var addressDto = new AddressDto(address.HouseNumber, address.Street, address.City, address.Country);
             var dto = new LocationCreateDto(name.Value, addressDto, timezone.Value);
 
             var toAddResponse = await client.PostAsJsonAsync("/api/locations", dto);
@@ -38,10 +38,10 @@ namespace DirectoryService.IntegrationTests.Locations
 
             var createEnvelope = await toAddResponse.Content.ReadFromJsonAsync<Envelope<Guid, object[]>>();
             Assert.NotNull(createEnvelope);
-            var createdLocationtId = createEnvelope.Result;
+            var createdLocationId = createEnvelope.Result;
 
             // Soft Delete через API
-            var toDeleteResponse = await client.DeleteAsync($"/api/locations/{createdLocationtId}");
+            var toDeleteResponse = await client.DeleteAsync($"/api/locations/{createdLocationId}");
             Assert.Equal(HttpStatusCode.OK, toDeleteResponse.StatusCode);
 
             var deleteEnvelope = await toDeleteResponse.Content.ReadFromJsonAsync<Envelope<Guid, object[]>>();
@@ -53,7 +53,7 @@ namespace DirectoryService.IntegrationTests.Locations
             {
                 var location = await dbContext.Locations
                     .IgnoreQueryFilters()
-                    .FirstOrDefaultAsync(l => l.Id == LocationId.Current(createdLocationtId));
+                    .FirstOrDefaultAsync(l => l.Id == LocationId.Current(createdLocationId));
 
                 Assert.NotNull(location);
                 Assert.True(location.SoftDeleted, "location must be marked as soft deleted");
