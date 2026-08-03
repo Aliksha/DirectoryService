@@ -40,6 +40,8 @@ namespace DirectoryService.Domain.Departments
             ParentId = parentId;
             CreatedAt = DateTime.UtcNow;
             UpdatedAt = DateTime.UtcNow;
+            SoftDeleted = false;
+            DeletedAt = null;
         }
 
         public DepartmentId Id { get; private set; }
@@ -54,6 +56,8 @@ namespace DirectoryService.Domain.Departments
         public IReadOnlyList<DepartmentPosition> Positions => _departmentsPositions;
         public DateTime CreatedAt { get; private set; }
         public DateTime UpdatedAt { get; private set; }
+        public bool SoftDeleted { get; private set; }
+        public DateTime? DeletedAt { get; private set; }
 
         public static Result<Department, Error> CreateParent(
             DepartmentName name,
@@ -121,6 +125,12 @@ namespace DirectoryService.Domain.Departments
             _departmentsLocations.Clear();
             _departmentsLocations.AddRange(newConnectionsWithLocations);
             UpdatedAt = DateTime.UtcNow;
+        }
+
+        public void SoftDelete()
+        {
+            SoftDeleted = true;
+            DeletedAt = DateTime.UtcNow;
         }
 
         public void Touch()

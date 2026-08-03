@@ -14,6 +14,7 @@ namespace DirectoryService.Application.IRepositories
         Task<Department?> GetBy(
             Expression<Func<Department, bool>> predicate,
             CancellationToken cancellationToken = default,
+            bool includeDeleted = false,
             params Expression<Func<Department, object>>[] includes);
 
         Task<Result<Guid, Error>> AddAsync(Department department, CancellationToken cancellationToken = default);

@@ -1,5 +1,6 @@
 ﻿using CSharpFunctionalExtensions;
 using DirectoryService.Domain.DepartmentLocations;
+using DirectoryService.Domain.Departments;
 using SharedKernel;
 using System;
 using System.Collections.Generic;
@@ -26,6 +27,8 @@ namespace DirectoryService.Domain.Locations
             //_departments = departments.ToList();
             CreatedAt = DateTime.UtcNow;
             UpdatedAt = DateTime.UtcNow;
+            SoftDeleted = false;
+            DeletedAt = null;
         }
 
         //public LocationId Id { get; private set; }
@@ -36,6 +39,8 @@ namespace DirectoryService.Domain.Locations
         public IReadOnlyList<DepartmentLocation> LocDepartments => _departments;
         public DateTime CreatedAt { get; private set; }
         public DateTime UpdatedAt { get; private set; }
+        public bool SoftDeleted { get; private set; }
+        public DateTime? DeletedAt { get; private set; }
 
         public static Result<Location> Create(LocationName name, Address address, Timezone timezone/*, IEnumerable<DepartmentLocation> departments*/)
         {
@@ -83,6 +88,12 @@ namespace DirectoryService.Domain.Locations
         {
             Timezone = newTimezone ?? throw new ArgumentNullException(nameof(newTimezone));
             UpdatedAt = DateTime.UtcNow;
+        }
+
+        public void SoftDelete()
+        {
+            SoftDeleted = true;
+            DeletedAt = DateTime.UtcNow;
         }
 
         public void Activate()

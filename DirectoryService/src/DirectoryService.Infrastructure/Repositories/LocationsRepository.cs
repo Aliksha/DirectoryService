@@ -52,7 +52,7 @@ namespace DirectoryService.Infrastructure.Repositories
             var domainLocationIds = distinctIds.Select(LocationId.Current).ToList();
 
             var existingIds = await _context.Locations
-                .Where(l => domainLocationIds.Contains(l.Id) && l.IsActive)
+                .Where(l => domainLocationIds.Contains(l.Id) && l.IsActive && !l.SoftDeleted)
                 .Select(l => l.Id.Value)
                 .ToListAsync(cancellationToken);
 
@@ -81,7 +81,7 @@ namespace DirectoryService.Infrastructure.Repositories
                     return GeneralErrors.NotFound(null, "location.not.found").ToErrors();
                 }
 
-                _context.Locations.Remove(deleteLocation);
+                deleteLocation.SoftDelete();
 
                 _logger.LogInformation("Location {LocationId} has been deleted", locationId);
 

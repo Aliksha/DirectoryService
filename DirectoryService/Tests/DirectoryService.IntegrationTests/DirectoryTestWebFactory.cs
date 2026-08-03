@@ -36,10 +36,14 @@ namespace DirectoryService.IntegrationTests
 
             builder.ConfigureTestServices(services =>
             {
-                //services.RemoveAll<DirectoryServiceDbContext>();
+                var garbageCollectorService = services.FirstOrDefault(d =>
+                    d.ImplementationType?.Name == "SoftDeleteGarbageCollector" ||
+                    d.ServiceType.Name == "SoftDeleteGarbageCollector");
 
-                //services.AddScoped<DirectoryServiceDbContext>(_ =>
-                //    new DirectoryServiceDbContext(_dbContainer.GetConnectionString()));
+                if (garbageCollectorService != null)
+                {
+                    services.Remove(garbageCollectorService);
+                }
 
                 // удаляем старый контекст и старые опции, которые успел накатать Program.cs
                 services.RemoveAll<DbContextOptions<DirectoryServiceDbContext>>();

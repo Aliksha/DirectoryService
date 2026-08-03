@@ -5,8 +5,10 @@ using DirectoryService.Application.Departments.Delete;
 using DirectoryService.Application.Departments.DisconnectLocation;
 using DirectoryService.Application.Departments.Get;
 using DirectoryService.Application.Departments.Get.GetById;
+using DirectoryService.Application.Departments.GetDepartmentLocationConnections;
 using DirectoryService.Application.Departments.Update;
 using DirectoryService.Application.Locations.Delete;
+using DirectoryService.Contracts.DepartmentLocation;
 using DirectoryService.Contracts.Departments;
 using DirectoryService.Contracts.Locations;
 using Framework.EndpointResults;
@@ -84,6 +86,16 @@ namespace DirectoryService.Presenters
             var dto = new ConnectionToLocationDto(departmentId, locationId);
             var command = new ConnectToLocationCommand(dto);
             return await handler.Handle(command, cancellationToken);
+        }
+
+        [HttpGet("/departmentlocation")]
+        public async Task<EndpointResult<DepartmentLocationResponseDto>> GetDepartmentLocationConnections(
+            [FromQuery] GetDepartmentLocationDto dto,
+            [FromServices] IQueryHandler<DepartmentLocationResponseDto, GetDepartmentLocationQuery> handler,
+            CancellationToken cancellationToken)
+        {
+            var query = new GetDepartmentLocationQuery(dto);
+            return await handler.Handle(query, cancellationToken);
         }
 
         [HttpDelete("{departmentId:guid}/locations/{locationId:guid}")]

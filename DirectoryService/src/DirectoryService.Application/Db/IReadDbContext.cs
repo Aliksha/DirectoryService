@@ -1,4 +1,5 @@
-﻿using DirectoryService.Domain.Departments;
+﻿using DirectoryService.Domain.DepartmentLocations;
+using DirectoryService.Domain.Departments;
 using DirectoryService.Domain.Locations;
 using System;
 using System.Collections.Generic;
@@ -11,5 +12,7 @@ namespace DirectoryService.Application.Db
         IQueryable<Location> LocationsRead { get; }
 
         IQueryable<Department> DepartmentsRead { get; }
+
+        IQueryable<DepartmentLocation> DepartmentLocationsRead { get; }
     }
 }

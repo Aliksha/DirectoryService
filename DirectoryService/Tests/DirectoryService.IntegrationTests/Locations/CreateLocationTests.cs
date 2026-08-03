@@ -32,7 +32,7 @@ namespace DirectoryService.IntegrationTests.Locations
             var address = Address.Create("1", "Street", "Moscow", "Russia").Value;
             var timezone = Timezone.Create("MST").Value;
 
-            var addressDto = new AddressDto(address.HouseNumber, address.Street, address.City, address.HouseNumber);
+            var addressDto = new AddressDto(address.HouseNumber, address.Street, address.City, address.Country);
             var dto = new LocationCreateDto(name.Value, addressDto, timezone.Value);
 
             // act
