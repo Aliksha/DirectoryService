@@ -80,6 +80,7 @@ namespace DirectoryService.Infrastructure.Configurations
             builder
                 .Property(d => d.Depth)
                 .IsRequired()
+                .HasColumnType("smallint")
                 .HasColumnName("depth");
 
             builder
