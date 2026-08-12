@@ -6,10 +6,15 @@ using DirectoryService.Application.Departments.DisconnectLocation;
 using DirectoryService.Application.Departments.Get;
 using DirectoryService.Application.Departments.Get.GetById;
 using DirectoryService.Application.Departments.GetDepartmentLocationConnections;
+using DirectoryService.Application.Departments.Tree.GetAncestors;
+using DirectoryService.Application.Departments.Tree.GetChildren;
+using DirectoryService.Application.Departments.Tree.GetSearch;
+using DirectoryService.Application.Departments.Tree.GetTree;
 using DirectoryService.Application.Departments.Update;
 using DirectoryService.Application.Locations.Delete;
 using DirectoryService.Contracts.DepartmentLocation;
 using DirectoryService.Contracts.Departments;
+using DirectoryService.Contracts.Departments.Tree;
 using DirectoryService.Contracts.Locations;
 using Framework.EndpointResults;
 using Microsoft.AspNetCore.Mvc;
@@ -52,6 +57,45 @@ namespace DirectoryService.Presenters
         {
             var dto = new GetByIdDepartmentDto(departmentId);
             var query = new GetByIdDepartmentQuery(dto);
+            return await handler.Handle(query, cancellationToken);
+        }
+
+        [HttpGet("tree")]
+        public async Task<EndpointResult<DepartmentsTreeResponseDto>> GetTree(
+            [FromServices] IQueryHandler<DepartmentsTreeResponseDto, GetDepartmentsTreeQuery> handler,
+            CancellationToken cancellationToken)
+        {
+            var query = new GetDepartmentsTreeQuery();
+            return await handler.Handle(query, cancellationToken);
+        }
+
+        [HttpGet("{departmentId:guid}/children")]
+        public async Task<EndpointResult<DepartmentChildrenResponseDto>> GetChildren(
+            [FromRoute] Guid departmentId,
+            [FromServices] IQueryHandler<DepartmentChildrenResponseDto, GetDepartmentChildrenQuery> handler,
+            CancellationToken cancellationToken)
+        {
+            var query = new GetDepartmentChildrenQuery(departmentId);
+            return await handler.Handle(query, cancellationToken);
+        }
+
+        [HttpGet("{departmentId:guid}/ancestors")]
+        public async Task<EndpointResult<DepartmentAncestorsResponseDto>> GetAncestors(
+            [FromRoute] Guid departmentId,
+            [FromServices] IQueryHandler<DepartmentAncestorsResponseDto, GetDepartmentAncestorsQuery> handler,
+            CancellationToken cancellationToken)
+        {
+            var query = new GetDepartmentAncestorsQuery(departmentId);
+            return await handler.Handle(query, cancellationToken);
+        }
+
+        [HttpGet("tree/search")]
+        public async Task<EndpointResult<DepartmentSearchResponseDto>> SearchTree(
+            [FromQuery] string q,
+            [FromServices] IQueryHandler<DepartmentSearchResponseDto, SearchDepartmentsTreeQuery> handler,
+            CancellationToken cancellationToken)
+        {
+            var query = new SearchDepartmentsTreeQuery(q);
             return await handler.Handle(query, cancellationToken);
         }
 
