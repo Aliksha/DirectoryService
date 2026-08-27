@@ -51,6 +51,13 @@ namespace DirectoryService.Infrastructure.Configurations
                 .HasForeignKey(d => d.PositionId)
                 .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("fk_department_position_position_id");
+
+            builder.HasIndex(dp => dp.DepartmentId)
+               .HasDatabaseName("IX_department_positions_department_id")
+               .HasFilter("\"SoftDeleted\" = false");
+
+            builder.HasIndex(dp => dp.PositionId)
+                .HasDatabaseName("IX_department_positions_position_id");
         }
     }
 }

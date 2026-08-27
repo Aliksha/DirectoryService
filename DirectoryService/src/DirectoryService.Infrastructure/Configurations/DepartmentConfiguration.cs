@@ -125,6 +125,24 @@ namespace DirectoryService.Infrastructure.Configurations
             builder.HasIndex(x => x.SoftDeleted)
                 .HasFilter("\"SoftDeleted\" = false");
 
+            builder.HasIndex(d => d.ParentId)
+                .HasDatabaseName("IX_departments_parent_id")
+                .HasFilter("\"SoftDeleted\" = false");
+
+            builder.HasIndex(d => d.Path)
+                .HasDatabaseName("idx_departments_path_gist")
+                .HasMethod("gist");
+
+            builder.HasIndex(d => d.Identifier)
+                .HasDatabaseName("idx_departments_slug")
+                .IsUnique()
+                .HasFilter("\"SoftDeleted\" = false");
+
+            builder.HasIndex(d => d.Name)
+                .HasDatabaseName("idx_departments_name_trgm")
+                .HasMethod("gin")
+                .HasOperators("gin_trgm_ops");
+
             builder.HasQueryFilter(x => !x.SoftDeleted);
         }
     }
