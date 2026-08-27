@@ -47,6 +47,7 @@ namespace DirectoryService.Infrastructure
             // вызвать базовый метод в начале
             base.OnModelCreating(modelBuilder);
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(DirectoryServiceDbContext).Assembly); // соберет все конфигурации
+            modelBuilder.HasPostgresExtension("pg_trgm");
         }
 
         public DbSet<Department> Departments => Set<Department>();
