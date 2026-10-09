@@ -6,6 +6,7 @@ using DirectoryService.Application.Departments.DisconnectLocation;
 using DirectoryService.Application.Departments.Get;
 using DirectoryService.Application.Departments.Get.GetById;
 using DirectoryService.Application.Departments.GetDepartmentLocationConnections;
+using DirectoryService.Application.Departments.MoveRoot;
 using DirectoryService.Application.Departments.Tree.GetAncestors;
 using DirectoryService.Application.Departments.Tree.GetChildren;
 using DirectoryService.Application.Departments.Tree.GetSearch;
@@ -15,6 +16,7 @@ using DirectoryService.Application.Locations.Delete;
 using DirectoryService.Contracts.DepartmentLocation;
 using DirectoryService.Contracts.Departments;
 using DirectoryService.Contracts.Departments.Tree;
+using DirectoryService.Contracts.Departments.UpdateRoot;
 using DirectoryService.Contracts.Locations;
 using Framework.EndpointResults;
 using Microsoft.AspNetCore.Mvc;
@@ -151,6 +153,17 @@ namespace DirectoryService.Presenters
         {
             var dto = new ConnectionToLocationDto(departmentId, locationId);
             var command = new DisconnectLocationCommand(dto);
+            return await handler.Handle(command, cancellationToken);
+        }
+
+        [HttpPut("{departmentId:guid}/parent")]
+        public async Task<EndpointResult<MovedDepartmentResponseDto>> MoveDepartment(
+            [FromRoute] Guid departmentId, // id переносимого узла из url
+            [FromBody] MoveDepartmentDto dto, // body запроса с новым ParentId or null
+            [FromServices] ICommandHandler<MovedDepartmentResponseDto, MoveDepartmentCommand> handler,
+            CancellationToken cancellationToken)
+        {
+            var command = new MoveDepartmentCommand(departmentId, dto);
             return await handler.Handle(command, cancellationToken);
         }
     }

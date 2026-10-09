@@ -149,5 +149,13 @@ namespace DirectoryService.Domain.Departments
             IsActive = false;
             UpdatedAt = DateTime.UtcNow;
         }
+
+        public void Move(DepartmentId? newParentId, Path newDepartmentPath, short newDepth)
+        {
+            ParentId = newParentId;
+            Path = newDepartmentPath;
+            Depth = newDepth;
+            UpdatedAt = DateTime.UtcNow;
+        }
     }
 }

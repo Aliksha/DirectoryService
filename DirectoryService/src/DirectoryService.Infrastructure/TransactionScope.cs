@@ -21,6 +21,8 @@ namespace DirectoryService.Infrastructure
             _logger = logger;
         }
 
+        public IDbTransaction Transaction => _transaction;
+
         public UnitResult<Error> Commit()
         {
             try

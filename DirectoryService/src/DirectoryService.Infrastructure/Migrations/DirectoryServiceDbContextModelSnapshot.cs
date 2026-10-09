@@ -18,7 +18,7 @@ namespace DirectoryService.Infrastructure.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.10")
+                .HasAnnotation("ProductVersion", "10.0.11")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.HasPostgresExtension(modelBuilder, "ltree");
@@ -266,6 +266,25 @@ namespace DirectoryService.Infrastructure.Migrations
                         .HasForeignKey("ParentId")
                         .OnDelete(DeleteBehavior.Restrict);
 
+                    b.OwnsOne("DirectoryService.Domain.Departments.Identifier", "Identifier", b1 =>
+                        {
+                            b1.Property<Guid>("DepartmentId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<string>("Value")
+                                .IsRequired()
+                                .HasMaxLength(500)
+                                .HasColumnType("character varying(500)")
+                                .HasColumnName("identifier");
+
+                            b1.HasKey("DepartmentId");
+
+                            b1.ToTable("departments", (string)null);
+
+                            b1.WithOwner()
+                                .HasForeignKey("DepartmentId");
+                        });
+
                     b.OwnsOne("DirectoryService.Domain.Departments.DepartmentName", "Name", b1 =>
                         {
                             b1.Property<Guid>("DepartmentId")
@@ -283,26 +302,7 @@ namespace DirectoryService.Infrastructure.Migrations
                                 .IsUnique()
                                 .HasDatabaseName("uq_departments_name");
 
-                            b1.ToTable("departments");
-
-                            b1.WithOwner()
-                                .HasForeignKey("DepartmentId");
-                        });
-
-                    b.OwnsOne("DirectoryService.Domain.Departments.Identifier", "Identifier", b1 =>
-                        {
-                            b1.Property<Guid>("DepartmentId")
-                                .HasColumnType("uuid");
-
-                            b1.Property<string>("Value")
-                                .IsRequired()
-                                .HasMaxLength(500)
-                                .HasColumnType("character varying(500)")
-                                .HasColumnName("identifier");
-
-                            b1.HasKey("DepartmentId");
-
-                            b1.ToTable("departments");
+                            b1.ToTable("departments", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("DepartmentId");
@@ -321,7 +321,7 @@ namespace DirectoryService.Infrastructure.Migrations
 
                             b1.HasKey("DepartmentId");
 
-                            b1.ToTable("departments");
+                            b1.ToTable("departments", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("DepartmentId");
@@ -361,7 +361,7 @@ namespace DirectoryService.Infrastructure.Migrations
 
                             b1.HasKey("LocationId");
 
-                            b1.ToTable("locations");
+                            b1.ToTable("locations", (string)null);
 
                             b1
                                 .ToJson("address")
