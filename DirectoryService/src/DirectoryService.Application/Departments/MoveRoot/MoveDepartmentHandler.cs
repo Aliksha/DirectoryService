@@ -44,7 +44,7 @@ namespace DirectoryService.Application.Departments.MoveRoot
         {
             var validationResult = await _validator.ValidateAsync(command, cancellationToken);
             if (!validationResult.IsValid)
-                validationResult.ToErrorList();
+                return validationResult.ToErrorList();
 
             var departmentId = DepartmentId.Current(command.DepartmentId);
             var newParentId = command.Dto.ParentId;

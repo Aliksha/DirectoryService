@@ -131,7 +131,7 @@ namespace DirectoryService.IntegrationTests.Department
             var response = await client.PutAsJsonAsync($"/api/departments/{movingId}/parent", moveDto);
 
             // assert
-            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+            Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
         }
 
         [Fact]
