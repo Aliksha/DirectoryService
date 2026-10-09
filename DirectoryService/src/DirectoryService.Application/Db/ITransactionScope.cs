@@ -2,6 +2,7 @@
 using SharedKernel;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Text;
 
 namespace DirectoryService.Application.Db
@@ -11,5 +12,8 @@ namespace DirectoryService.Application.Db
         UnitResult<Error> Commit();
 
         UnitResult<Error> Rollback();
+
+        public IDbTransaction Transaction { get; }
+
     }
 }

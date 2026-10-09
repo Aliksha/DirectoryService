@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Transactions;
 using Path = DirectoryService.Domain.Departments.Path;
+using System.Data.Common;
 
 namespace DirectoryService.Application.Departments.MoveRoot
 {
@@ -69,7 +70,7 @@ namespace DirectoryService.Application.Departments.MoveRoot
             {
                 return new MovedDepartmentResponseDto(
                     movingDepartment.Id.Value,
-                    movingDepartment.ParentId.Value,
+                    movingDepartment.ParentId?.Value ?? Guid.Empty,
                     movingDepartment.Path.Value,
                     movingDepartment.Depth,
                     movingDepartment.UpdatedAt);
@@ -151,8 +152,16 @@ namespace DirectoryService.Application.Departments.MoveRoot
 
             try
             {
-                using var dbConnection = await _connectionFactory.CreateConnectionAsync(cancellationToken);
-                await dbConnection.ExecuteAsync(bulkUpdateSql, sqlParameters);
+                //using var dbConnection = await _connectionFactory.CreateConnectionAsync(cancellationToken);
+                //var currentTransaction = transactionScope.GetDbTransaction();
+
+                // достать транзакцию из scope наружу
+                var currentTransaction = transactionScope.Transaction;
+
+                // достать то же самое живое соединение с постгрес на котором держится транзакция EF
+                var dbConnection = currentTransaction.Connection;
+
+                await dbConnection.ExecuteAsync(bulkUpdateSql, sqlParameters, transaction: currentTransaction);
             }
             catch (Exception ex)
             {
