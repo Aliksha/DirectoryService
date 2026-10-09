@@ -70,7 +70,8 @@ namespace DirectoryService.Application.Departments.MoveRoot
             {
                 return new MovedDepartmentResponseDto(
                     movingDepartment.Id.Value,
-                    movingDepartment.ParentId?.Value ?? Guid.Empty,
+                    // movingDepartment.ParentId?.Value ?? Guid.Empty,
+                    movingDepartment.ParentId?.Value,
                     movingDepartment.Path.Value,
                     movingDepartment.Depth,
                     movingDepartment.UpdatedAt);
@@ -181,7 +182,8 @@ namespace DirectoryService.Application.Departments.MoveRoot
 
             var response = new MovedDepartmentResponseDto(
                 DepartmentId: movingDepartment.Id.Value,
-                ParentId: movingDepartment.ParentId is not null ? movingDepartment.ParentId.Value : Guid.Empty,
+               // ParentId: movingDepartment.ParentId is not null ? movingDepartment.ParentId.Value : Guid.Empty,
+                ParentId: movingDepartment.ParentId?.Value,
                 Path: newPathStr,
                 Depth: newDepth,
                 UpdatedAt: movingDepartment.UpdatedAt

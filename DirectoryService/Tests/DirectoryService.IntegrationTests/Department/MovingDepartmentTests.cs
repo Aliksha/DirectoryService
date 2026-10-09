@@ -13,7 +13,7 @@ using System.Text;
 
 namespace DirectoryService.IntegrationTests.Department
 {
-    [Trait("Category", "Inegration")]
+    [Trait("Category", "Integration")]
     public class MovingDepartmentTests : DirectorytBaseTest
     {
         private readonly DirectoryTestWebFactory _factory;
