@@ -35,6 +35,8 @@ namespace DirectoryService.Infrastructure
 
             optionsBuilder.UseLoggerFactory(MyLoggerFactory);
 
+            optionsBuilder.ConfigureWarnings(w => w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning));
+
             // настроить БД только если еще не настроена извне
             if (!optionsBuilder.IsConfigured && _connectionString != null)
             {

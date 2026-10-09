@@ -53,6 +53,10 @@ namespace DirectoryService.IntegrationTests
                 services.AddDbContext<DirectoryServiceDbContext>(options =>
                 {
                     options.UseNpgsql(_dbContainer.GetConnectionString());
+
+                    // глушим варнинг изменения моделей, чтобы миграции запустились
+                    options.ConfigureWarnings(warnings => warnings.Ignore(
+                        Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning));
                 });
             });
         }
@@ -64,8 +68,10 @@ namespace DirectoryService.IntegrationTests
             await using var scope = Services.CreateAsyncScope();
             var dbContext = scope.ServiceProvider.GetRequiredService<DirectoryServiceDbContext>();
 
-            await dbContext.Database.EnsureDeletedAsync();
-            await dbContext.Database.EnsureCreatedAsync();
+            await dbContext.Database.MigrateAsync();
+
+            //await dbContext.Database.EnsureDeletedAsync();
+            //await dbContext.Database.EnsureCreatedAsync();
 
             _dbConnection = new NpgsqlConnection(_dbContainer.GetConnectionString());
             await _dbConnection.OpenAsync();
