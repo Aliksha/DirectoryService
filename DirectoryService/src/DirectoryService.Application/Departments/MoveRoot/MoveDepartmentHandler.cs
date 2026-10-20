@@ -12,10 +12,12 @@ using Microsoft.Extensions.Logging;
 using SharedKernel;
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
+using System.Diagnostics;
 using System.Text;
 using System.Transactions;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using Path = DirectoryService.Domain.Departments.Path;
-using System.Data.Common;
 
 namespace DirectoryService.Application.Departments.MoveRoot
 {
@@ -60,6 +62,39 @@ namespace DirectoryService.Application.Departments.MoveRoot
 
             using var transactionScope = transactionScopeResult.Value;
 
+            // живое соединение и транзакцию
+            var currentTransaction = transactionScope.Transaction;
+            var dbConnection = currentTransaction.Connection
+                ?? throw new InvalidOperationException("Транзакция активна, но её соединение равно null.");
+            try
+            {
+                // список id для блокировки, убираем null if parent — корень
+                var idsToLock = new List<Guid> { command.DepartmentId };
+                if (newParentId.HasValue)
+                {
+                    idsToLock.Add(newParentId.Value);
+                }
+
+                // ДЛЯ ИСКЛЮЧЕНИЯ DEADLOCKS, сортируем id по возрастанию
+                var sortedIdsForLock = idsToLock.OrderBy(id => id).ToList();
+
+                string lockSql = "SELECT id FROM public.departments WHERE id = ANY(@Ids) FOR UPDATE;";
+                _ = await dbConnection.ExecuteAsync(lockSql, new { Ids = sortedIdsForLock }, transaction: currentTransaction);
+            }
+            // ловим исключение постгрес
+            catch (Npgsql.NpgsqlException ex) when (ex.SqlState == "40P01")
+            {
+                _logger.LogWarning(ex, "PostgreSQL deadlock detected (40P01) while locking departments {Ids}", newParentId.HasValue ? $"{command.DepartmentId} and {newParentId}" : $"{command.DepartmentId}");
+
+                // Возвращаем 409 Conflict с требуемым кодом
+                return Error.Conflict("department.move.conflict", "Конфликт транзакций или взаимная блокировка. Пожалуйста, обновите дерево или повторите операцию.").ToErrors();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to acquire FOR UPDATE lock on departments");
+                return Error.Failure("database.lock.failed", "Не удалось заблокировать структуру отделов для перемещения").ToErrors();
+            }
+
             // двигаемый узел получаем
             var movingDepartment = await _departmentsRepository.GetBy(x => x.Id == departmentId, cancellationToken);
             if (movingDepartment == null)
@@ -90,7 +125,7 @@ namespace DirectoryService.Application.Departments.MoveRoot
 
                 if (newParentDepartment == null)
                 {
-                    return Error.NotFound("department.parent.not_found", "Новый родительский узел не найден").ToErrors();
+                    return Error.Conflict("department.parent.not_found", "Новый родительский узел не найден").ToErrors();
                 }
 
                 if (!newParentDepartment.IsActive)
@@ -153,16 +188,19 @@ namespace DirectoryService.Application.Departments.MoveRoot
 
             try
             {
-                //using var dbConnection = await _connectionFactory.CreateConnectionAsync(cancellationToken);
-                //var currentTransaction = transactionScope.GetDbTransaction();
-
                 // достать транзакцию из scope наружу
-                var currentTransaction = transactionScope.Transaction;
+                // var currentTransaction = transactionScope.Transaction;
 
                 // достать то же самое живое соединение с постгрес на котором держится транзакция EF
-                var dbConnection = currentTransaction.Connection;
+                // var dbConnection = currentTransaction.Connection;
 
-                await dbConnection.ExecuteAsync(bulkUpdateSql, sqlParameters, transaction: currentTransaction);
+                await dbConnection!.ExecuteAsync(bulkUpdateSql, sqlParameters, transaction: currentTransaction);
+            }
+            // ловим дедлок при массовом обновлении детей
+            catch (Npgsql.NpgsqlException ex) when (ex.SqlState == "40P01")
+            {
+                _logger.LogWarning(ex, "PostgreSQL deadlock detected (40P01) during bulk subtree relocation for path {OldPath}", oldPathStr);
+                return Error.Conflict("department.move.conflict", "Конфликт транзакций при обновлении поддерева. Пожалуйста, повторите операцию.").ToErrors();
             }
             catch (Exception ex)
             {

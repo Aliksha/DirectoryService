@@ -1,5 +1,6 @@
 ﻿using CSharpFunctionalExtensions;
 using DirectoryService.Application.Db;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
 using SharedKernel;
@@ -27,7 +28,7 @@ namespace DirectoryService.Infrastructure
         {
             try
             {
-                var transaction = await _dbContext.Database.BeginTransactionAsync(cancellationToken);
+                var transaction = await _dbContext.Database.BeginTransactionAsync(IsolationLevel.ReadCommitted, cancellationToken);
                 var transactionScopeLogger = _loggerFactory.CreateLogger<TransactionScope>();
                 var transactionScope = new TransactionScope(transaction.GetDbTransaction(), transactionScopeLogger);
                 return transactionScope;
