@@ -1,4 +1,5 @@
-﻿using Dapper;
+﻿using Core.Abstractions;
+using Dapper;
 using DirectoryService.Application.Db;
 using DirectoryService.Application.IRepositories;
 using DirectoryService.Infrastructure.BackgroundServices;

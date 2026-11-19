@@ -1,11 +1,8 @@
 ﻿using CSharpFunctionalExtensions;
 using SharedKernel;
-using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Text;
 
-namespace DirectoryService.Application.Db
+namespace Core.Abstractions
 {
     public interface ITransactionScope : IDisposable
     {

@@ -1,7 +1,10 @@
 ﻿using Framework.EndpointResults;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using SharedKernel;
 
-namespace DirectoryService.Web.Middlewares
+namespace Framework.Middlewares
 {
     public class ExceptionMiddleware
     {

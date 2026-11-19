@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace DirectoryService.Application.Db
+namespace Core.Abstractions
 {
     public interface ITransactionManager
     {
