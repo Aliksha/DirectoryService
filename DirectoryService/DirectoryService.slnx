@@ -1,4 +1,9 @@
 <Solution>
+  <Folder Name="/client/">
+    <File Path="client/components.json" />
+    <File Path="client/next.config.ts" />
+    <File Path="client/package.json" />
+  </Folder>
   <Folder Name="/shared/">
     <Project Path="Core/Core.csproj" />
     <Project Path="shared/Framework/Framework.csproj" />
