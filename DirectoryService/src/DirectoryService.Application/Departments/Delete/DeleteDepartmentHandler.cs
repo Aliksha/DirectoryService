@@ -1,6 +1,5 @@
 ﻿using Core.Abstractions;
 using CSharpFunctionalExtensions;
-using DirectoryService.Application.Db;
 using DirectoryService.Application.IRepositories;
 using DirectoryService.Application.Locations.Delete;
 using DirectoryService.Domain.Departments;

@@ -1,5 +1,5 @@
-﻿using CSharpFunctionalExtensions;
-using DirectoryService.Application.Db;
+﻿using Core.Abstractions;
+using CSharpFunctionalExtensions;
 using Microsoft.Extensions.Logging;
 using SharedKernel;
 using System;

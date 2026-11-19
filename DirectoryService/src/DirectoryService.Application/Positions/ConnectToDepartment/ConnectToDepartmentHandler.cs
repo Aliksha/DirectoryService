@@ -1,6 +1,5 @@
 ﻿using Core.Abstractions;
 using CSharpFunctionalExtensions;
-using DirectoryService.Application.Db;
 using DirectoryService.Application.IRepositories;
 using DirectoryService.Domain.DepartmentPositions;
 using DirectoryService.Domain.Departments;

@@ -1,8 +1,7 @@
 ﻿using System.Globalization;
 using DirectoryService.Application;
 using DirectoryService.Infrastructure;
-using DirectoryService.Web.Middlewares;
-using Microsoft.EntityFrameworkCore;
+using Framework.Middlewares;
 using Serilog;
 using Serilog.Exceptions;
 
